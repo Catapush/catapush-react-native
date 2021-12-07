@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Catapush React Native SDK Example</string>
+    <string name="notifications_channel_name">Example Channel</string>
+</resources>

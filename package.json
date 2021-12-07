@@ -1,0 +1,94 @@
+{
+  "name": "catapush-react-native",
+  "version": "1.0.0",
+  "description": "Catapush",
+  "homepage": "https://www.catapush.com/",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "author": "Catapush <catapush.com@gmail.com>",
+  "license": "Apache-2.0",
+  "files": [
+    "android",
+    "ios",
+    "lib",
+    "catapush-react-native.podspec",
+    "!android/build",
+    "!.DS_Store",
+    "!.gradle",
+    "!.idea",
+    "!build",
+    "!gradle",
+    "!*.iml",
+    "!gradlew",
+    "!gradlew.bat",
+    "!local.properties",
+    "!project.xcworkspace",
+    "!xcshareddata",
+    "!xcuserdata"
+  ],
+  "scripts": {
+    "compile": "rm -rf lib && tsc -p .",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "prepare": "yarn compile",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.15.8",
+    "@babel/runtime": "^7.15.4",
+    "@react-native-community/eslint-config": "^3.0.1",
+    "@types/jest": "^27.0.2",
+    "@types/react": "^17.0.32",
+    "@types/react-native": "^0.66.0",
+    "@types/react-test-renderer": "^17.0.1",
+    "babel-jest": "^27.3.1",
+    "eslint": "^7.32.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "jest": "^27.3.1",
+    "metro-react-native-babel-preset": "^0.66.2",
+    "react": "^17.0.2",
+    "react-native": "^0.66.1",
+    "react-test-renderer": "^17.0.2",
+    "typescript": "^4.4.4"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "jest": {
+    "preset": "react-native",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  },
+  "dependencies": {
+    "date-fns": "^2.25.0",
+    "prop-types": "^15.7.2"
+  },
+  "directories": {
+    "example": "example",
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Catapush/catapush-react-native.git"
+  },
+  "keywords": [
+    "react-native",
+    "react-component",
+    "ios",
+    "android",
+    "push",
+    "apns",
+    "fcm",
+    "gcm",
+    "catapush"
+  ],
+  "bugs": {
+    "url": "https://github.com/Catapush/catapush-react-native/issues"
+  }
+}
