@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Appbar, DefaultTheme, IconButton, Provider as PaperProvider, Snackbar, TextInput } from 'react-native-paper';
-import Catapush, { CatapushError, CatapushMessage, CatapushMessageDelegate, CatapushMessageWidget, CatapushState, CatapushStateDelegate } from 'catapush-react-native'
+import Catapush, { CatapushError, CatapushFile, CatapushMessage, CatapushMessageDelegate, CatapushMessageWidget, CatapushState, CatapushStateDelegate } from 'catapush-react-native'
 import { AppState, FlatList, Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 const theme = {
   ...DefaultTheme,
@@ -128,10 +129,32 @@ const App = () => {
         <FlatList
           inverted
           data={messages}
-          renderItem={(info) => <CatapushMessageWidget message={info.item} />}
+          renderItem={(info) => {
+             return <CatapushMessageWidget message={info.item} />
+            }}
           keyExtractor={item => item.id}
         />
         <View style={styles.messageInputContainer}>
+        <IconButton
+            icon='camera'
+            color='white'
+            size={34}
+            onPress={async () => {
+              const result = await launchImageLibrary({
+                mediaType: 'photo',
+              });
+              console.log(result);
+              const assets = result.assets
+              if (assets != null){
+                const asset = assets[0];
+                const type = asset.type
+                const uri = asset.uri
+                if (type != null && uri != null){
+                  Catapush.sendMessage(outboundMessage, null, null, new CatapushFile(type, uri))
+                  .then((_) => setOutboundMessage(''))
+                  }
+              }
+            }} />
           <TextInput
             style={styles.messageTextInput}
             mode='outlined'
@@ -143,7 +166,7 @@ const App = () => {
             color='white'
             size={34}
             onPress={() => {
-              Catapush.sendMessage(outboundMessage, null, null)
+              Catapush.sendMessage(outboundMessage, null, null, null)
                 .then((_) => setOutboundMessage(''))
             }} />
         </View>

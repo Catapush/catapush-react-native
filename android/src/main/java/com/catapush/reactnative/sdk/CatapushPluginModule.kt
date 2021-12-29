@@ -2,6 +2,7 @@ package com.catapush.reactnative.sdk
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.net.Uri
 import android.util.Log
 import com.catapush.library.Catapush
 import com.catapush.library.interfaces.Callback
@@ -134,9 +135,28 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
         val body = message.getString("body")
         val channel = message.getString("channel")
         val replyTo = message.getString("replyTo")
-        //val file = message.getMap("file")
+        val file = message.getMap("file")
+        val fileUrl = file?.getString("url")
+
         @SuppressLint("MissingPermission")
-        if (!body.isNullOrBlank()) {
+        if (!fileUrl.isNullOrBlank()) {
+            val uri = fileUrl.let {
+                if (it.startsWith("/")) {
+                    Uri.parse("file://${it}")
+                } else {
+                    Uri.parse(it)
+                }
+            }
+            //val mimeType = file["mimeType"] as String?
+            Catapush.getInstance().sendFile(uri, body ?: "", channel, replyTo, object : Callback<Boolean> {
+                override fun success(response: Boolean) {
+                    promise.resolve(true)
+                }
+                override fun failure(irrecoverableError: Throwable) {
+                    promise.reject("op failed", irrecoverableError.localizedMessage, irrecoverableError)
+                }
+            })
+        } else if (!body.isNullOrBlank()) {
             Catapush.getInstance().sendMessage(body, channel, replyTo, object : Callback<Boolean> {
                 override fun success(response: Boolean) {
                     promise.resolve(true)
@@ -146,7 +166,42 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
                 }
             })
         } else {
-            promise.reject("bad args", "Body cannot be empty. Arguments: message=$message", null)
+            promise.reject("bad args", "Please provide a body or an attachment (or both). Arguments: message=$message", null)
+        }
+    }
+
+    @ReactMethod
+    fun getAttachmentUrlForMessage(message: ReadableMap, promise: Promise) {
+        val id = message.getString("id")
+        if (id != null) {
+            Catapush.getInstance().getMessageById(id, object : Callback<CatapushMessage> {
+                override fun success(response: CatapushMessage) {
+                    response.file().also {
+                        when {
+                            it != null && response.isIn -> {
+                                promise.resolve(WritableNativeMap().apply {
+                                    putString("url", it.remoteUri())
+                                    putString("mimeType", it.type())
+                                })
+                            }
+                            it != null && !response.isIn -> {
+                                promise.resolve(WritableNativeMap().apply {
+                                    putString("url", it.localUri())
+                                    putString("mimeType", it.type())
+                                })
+                            }
+                            else -> {
+                                promise.reject("op failed", "getAttachmentUrlForMessage unexpected CatapushMessage state or format", null)
+                            }
+                        }
+                    }
+                }
+                override fun failure(irrecoverableError: Throwable) {
+                    promise.reject("op failed", "getAttachmentUrlForMessage ${irrecoverableError.localizedMessage}", irrecoverableError)
+                }
+            })
+        } else {
+            promise.reject("bad args", "Id cannot be empty. Arguments: message=$message", null)
         }
     }
 

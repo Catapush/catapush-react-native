@@ -45,4 +45,8 @@ RCT_EXTERN_METHOD(sendMessageReadNotificationWithId: (NSString*)messageId
                   resolver: (RCTPromiseResolveBlock)resolve
                   rejecter: (RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(getAttachmentUrlForMessage: (NSDictionary*)message
+                  resolver: (RCTPromiseResolveBlock)resolve
+                  rejecter: (RCTPromiseRejectBlock)reject)
+
 @end

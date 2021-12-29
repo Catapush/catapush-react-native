@@ -58,11 +58,11 @@ export class CatapushFile {
     this.url = url
   }
 
-  public mapRepresentation(): Map<String, any> {
-    return new Map([
-      ['mimeType', this.mimeType],
-      ['url', this.url],
-    ])
+  public mapRepresentation() {
+    return {
+      mimeType: this.mimeType,
+      url: this.url,
+    }
   }
 
   public toString = (): string => {

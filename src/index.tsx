@@ -109,12 +109,15 @@ export default class Catapush {
   static sendMessage(
     body: string,
     channel: string | null,
-    replyTo: string | null
+    replyTo: string | null,
+    file: CatapushFile | null
   ): Promise<boolean> {
+    let fileMap = file?.mapRepresentation()
     return catapushPluginModule.sendMessage({
       body: body,
       channel: channel,
       replyTo: replyTo,
+      file: fileMap,
     })
   }
   static allMessages(): Promise<CatapushMessage[]> {

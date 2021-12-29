@@ -7,6 +7,7 @@
 
 import Foundation
 import React
+import CoreServices
 import catapush_ios_sdk_pod
 
 @objc(CatapushPluginModule)
@@ -116,35 +117,139 @@ class CatapushPluginModule: RCTEventEmitter {
     }
     
     @objc
-    func sendMessage(_ message: Dictionary<String, Any>?, resolver resolve: @escaping RCTPromiseResolveBlock,
+    func sendMessage(_ args: Dictionary<String, Any>?, resolver resolve: @escaping RCTPromiseResolveBlock,
                      rejecter reject: @escaping RCTPromiseRejectBlock ) -> Void {
-        guard message != nil else {
+        guard let args = args else {
             reject("bad args", "Empty argument", nil)
             return
         }
-        guard let text = message!["body"]  as? String else {
+        guard let text = args["body"]  as? String else {
             reject("bad args", "Body cannot be empty", nil)
             return
         }
-        let channel = message!["channel"] as? String
-        let replyTo = message!["replyTo"] as? String
+        let channel = args["channel"] as? String
+        let replyTo = args["replyTo"] as? String
+        let file = args["file"] as? Dictionary<String, Any>
         let message: MessageIP?
-        if let channel = channel {
-            if let replyTo = replyTo {
-                message = Catapush.sendMessage(withText: text, andChannel: channel, replyTo: replyTo)
+        if let file = file, let urlString = file["url"] as? String, let url = URL(string: urlString), let mimeType = file["mimeType"] as? String, FileManager.default.fileExists(atPath: url.path){
+            let data = FileManager.default.contents(atPath: url.path)
+            if let channel = channel {
+                if let replyTo = replyTo {
+                    message = Catapush.sendMessage(withText: text, andChannel: channel, andData: data, ofType: mimeType, replyTo: replyTo)
+                }else{
+                    message = Catapush.sendMessage(withText: text, andChannel: channel, andData: data, ofType: mimeType)
+                }
             }else{
-                message = Catapush.sendMessage(withText: text, andChannel: channel)
+                if let replyTo = replyTo {
+                    message = Catapush.sendMessage(withText: text, andData: data, ofType: mimeType, replyTo: replyTo)
+                }else{
+                    message = Catapush.sendMessage(withText: text, andData: data, ofType: mimeType)
+                }
             }
-        }else{
-            if let replyTo = replyTo {
-                message = Catapush.sendMessage(withText: text, replyTo: replyTo)
+        } else {
+            if let channel = channel {
+                if let replyTo = replyTo {
+                    message = Catapush.sendMessage(withText: text, andChannel: channel, replyTo: replyTo)
+                }else{
+                    message = Catapush.sendMessage(withText: text, andChannel: channel)
+                }
             }else{
-                message = Catapush.sendMessage(withText: text)!
+                if let replyTo = replyTo {
+                    message = Catapush.sendMessage(withText: text, replyTo: replyTo)
+                }else{
+                    message = Catapush.sendMessage(withText: text)!
+                }
             }
         }
         resolve(true)
         if (message != nil) {
             sendEvent(withName: "Catapush#catapushMessageSent", body: ["message" : CatapushPluginModule.formatMessageID(message: message!)])
+        }
+    }
+    
+    @objc
+    func getAttachmentUrlForMessage(_ message: Dictionary<String, Any>?, resolver resolve: @escaping RCTPromiseResolveBlock,
+                     rejecter reject: @escaping RCTPromiseRejectBlock ) -> Void {
+        guard message != nil else {
+            reject("bad args", "Empty argument", nil)
+            return
+        }
+        guard let id = message!["id"]  as? String else {
+            reject("bad args", "Empty id", nil)
+            return
+        }
+        let predicate = NSPredicate(format: "messageId = %@", id)
+        guard let matches = Catapush.messages(with: predicate), matches.count > 0 else {
+            resolve(["url": ""])
+            return
+        }
+        let messageIP = matches.first! as! MessageIP
+        if messageIP.hasMedia() {
+            if messageIP.mm != nil {
+                guard let mime = messageIP.mmType,
+                      let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, mime as CFString, nil),
+                      let ext = UTTypeCopyPreferredTagWithClass(uti.takeRetainedValue(), kUTTagClassFilenameExtension) else{
+                          return
+                      }
+                let tempDirectoryURL = NSURL.fileURL(withPath: NSTemporaryDirectory(), isDirectory: true)
+                let filePath = tempDirectoryURL.appendingPathComponent("\(messageIP.messageId!).\(ext.takeRetainedValue())")
+                let fileManager = FileManager.default
+                if fileManager.fileExists(atPath: filePath.path) {
+                    resolve(["url": filePath.absoluteString, "mimeType": messageIP.mmType])
+                    return
+                }
+                do {
+                    try messageIP.mm.write(to: filePath)
+                    resolve(["url": filePath.absoluteString, "mimeType": messageIP.mmType])
+                } catch {
+                    reject("Could not write file", error.localizedDescription, nil)
+                }
+            }else{
+                DispatchQueue.main.async {
+                    messageIP.downloadMedia { (error, data) in
+                        if(error != nil){
+                            reject("Error downloadMedia", error?.localizedDescription, nil)
+                        }else{
+                            let predicate = NSPredicate(format: "messageId = %@", id)
+                            if let matches = Catapush.messages(with: predicate), matches.count > 0 {
+                                let messageIP = matches.first! as! MessageIP
+                                if messageIP.hasMedia() {
+                                    if messageIP.mm != nil {
+                                        guard let mime = messageIP.mmType,
+                                              let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, mime as CFString, nil),
+                                              let ext = UTTypeCopyPreferredTagWithClass(uti.takeRetainedValue(), kUTTagClassFilenameExtension) else{
+                                                  return
+                                              }
+                                        let tempDirectoryURL = NSURL.fileURL(withPath: NSTemporaryDirectory(), isDirectory: true)
+                                        let filePath = tempDirectoryURL.appendingPathComponent("\(messageIP.messageId!).\(ext.takeRetainedValue())")
+                                        let fileManager = FileManager.default
+                                        if fileManager.fileExists(atPath: filePath.path) {
+                                            resolve(["url": filePath.absoluteString])
+                                            return
+                                        }
+                                        do {
+                                            try messageIP.mm.write(to: filePath)
+                                            resolve(["url": filePath.absoluteString, "mimeType": messageIP.mmType])
+                                        } catch {
+                                            reject("Could not write file", error.localizedDescription, nil)
+                                        }
+                                    }else{
+                                        resolve(["url": ""])
+                                    }
+                                    return
+                                }else{
+                                    resolve(["url": ""])
+                                }
+                            }else{
+                                resolve(["url": ""])
+                            }
+                        }
+                    }
+                }
+            }
+            return
+        }else{
+            resolve(["url": ""])
         }
     }
     

@@ -58,6 +58,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'white',
   },
+  image: {
+    resizeMode: 'contain',
+    width: 200,
+    height: 200,
+  },
 })
 
 type CatapushMessageWidgetProps = {
@@ -75,8 +80,15 @@ export function CatapushMessageWidget(props: CatapushMessageWidgetProps) {
   useEffect(() => {
     async function getAttachmentUrl() {
       await Catapush.getAttachmentUrlForMessage(props.message)
-        .then((attachment) => setAttachmentUrl(attachment.url))
-        .catch((error) => setAttachmentError(error))
+        .then((attachment) => {
+          console.log('ok')
+          console.log(attachment.url)
+          setAttachmentUrl(attachment.url)
+        })
+        .catch((error) => {
+          console.log('error')
+          setAttachmentError(error)
+        })
     }
     if (props.message.hasAttachment) {
       getAttachmentUrl()
@@ -89,15 +101,14 @@ export function CatapushMessageWidget(props: CatapushMessageWidgetProps) {
     } else if (props.message.hasAttachment && attachmentUrl == null) {
       return <ActivityIndicator size='small' />
     } else {
-      return <Image source={{ uri: attachmentUrl! }} />
-      /*if (
-        data.attachmentUrl!.startsWith('https://') ||
-        data.attachmentUrl!.startsWith('http://')
-      ) {
-        return <Image source={{ uri: data.attachmentUrl! }} />
-      } else {
-        return <Image source={require(data.attachmentUrl!)} />
-      }*/
+      return (
+        <Image
+          style={styles.image}
+          source={{
+            uri: attachmentUrl!,
+          }}
+        />
+      )
     }
   }
 
@@ -159,11 +170,11 @@ export function CatapushMessageWidget(props: CatapushMessageWidgetProps) {
     return (
       <View style={styles.receivedMessageContainer}>
         <View style={bubbleStyle}>
+          {props.message.hasAttachment && buildImageBox()}
           <Text style={bodyStyle}>{props.message.body ?? ''}</Text>
           <Text style={captionStyle}>
             {formatMessageDate() + confirmedCheck()}
           </Text>
-          {props.message.hasAttachment && buildImageBox()}
         </View>
       </View>
     )
@@ -203,11 +214,11 @@ export function CatapushMessageWidget(props: CatapushMessageWidgetProps) {
     return (
       <View style={styles.sentMessageContainer}>
         <View style={bubbleStyle}>
+          {props.message.hasAttachment && buildImageBox()}
           <Text style={bodyStyle}>{props.message.body ?? ''}</Text>
           <Text style={captionStyle}>
             {formatMessageDate() + confirmedCheck()}
           </Text>
-          {props.message.hasAttachment && buildImageBox()}
         </View>
       </View>
     )
