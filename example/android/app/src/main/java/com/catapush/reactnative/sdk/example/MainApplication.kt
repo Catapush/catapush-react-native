@@ -21,7 +21,6 @@ import com.catapush.library.interfaces.IIntentProvider
 import com.catapush.library.messages.CatapushMessage
 import com.catapush.library.notifications.NotificationTemplate
 import com.catapush.reactnative.sdk.CatapushPluginModule
-import com.catapush.reactnative.sdk.CatapushPluginPackage
 import com.facebook.react.*
 import com.facebook.soloader.SoLoader
 import java.lang.reflect.InvocationTargetException
@@ -37,7 +36,6 @@ class MainApplication : Application(), ReactApplication {
             val packages = PackageList(this).packages
             // Packages that cannot be autolinked yet can be added manually here, for example:
             // packages.add(MyReactNativePackage());
-            packages.add(CatapushPluginPackage())
             return packages
         }
 
