@@ -1,5 +1,6 @@
 package com.catapush.reactnative.sdk.example
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
@@ -18,6 +20,7 @@ import com.catapush.library.interfaces.Callback
 import com.catapush.library.interfaces.IIntentProvider
 import com.catapush.library.messages.CatapushMessage
 import com.catapush.library.notifications.NotificationTemplate
+import com.catapush.reactnative.sdk.CatapushPluginModule
 import com.catapush.reactnative.sdk.CatapushPluginPackage
 import com.facebook.react.*
 import com.facebook.soloader.SoLoader
@@ -53,53 +56,78 @@ class MainApplication : Application(), ReactApplication {
         initializeFlipper(this, reactNativeHost.reactInstanceManager)
 
         val notificationColor = ContextCompat.getColor(this, R.color.colorPrimary)
-        val notificationSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
+        val notificationTemplate = NotificationTemplate.Builder(NOTIFICATION_CHANNEL_ID)
+            .swipeToDismissEnabled(true)
+            .vibrationEnabled(true)
+            .vibrationPattern(longArrayOf(100, 200, 100, 300))
+            .soundEnabled(true)
+            .soundResourceUri(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+            .circleColor(notificationColor)
+            .iconId(R.drawable.ic_stat_notify_default)
+            .useAttachmentPreviewAsLargeIcon(true)
+            .modalIconId(R.mipmap.ic_launcher)
+            .ledEnabled(true)
+            .ledColor(notificationColor)
+            .ledOnMS(2000)
+            .ledOffMS(1000)
+            .build()
 
         val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
-        if (nm != null) {
-            val channelName = getString(R.string.notifications_channel_name)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                var channel = nm.getNotificationChannel(NOTIFICATION_CHANNEL_ID)
-                val shouldCreateOrUpdate =
-                    channel == null || !channelName.contentEquals(channel.name)
-                if (shouldCreateOrUpdate) {
-                    if (channel == null) {
-                        channel = NotificationChannel(
-                            NOTIFICATION_CHANNEL_ID,
-                            channelName,
-                            NotificationManager.IMPORTANCE_HIGH
-                        )
-                        channel.enableVibration(true)
-                        channel.vibrationPattern = longArrayOf(100, 200, 100, 300)
-                        channel.enableLights(true)
-                        channel.lightColor = notificationColor
-                        if (notificationSound != null) {
-                            val audioAttributes = AudioAttributes.Builder()
-                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                                .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
-                                .build()
-                            channel.setSound(notificationSound, audioAttributes)
-                        }
-                    }
-                    nm.createNotificationChannel(channel)
+        if (nm != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelName = "Catapush messages"
+            var channel = nm.getNotificationChannel(notificationTemplate.notificationChannelId)
+            if (channel == null) {
+                channel = NotificationChannel(
+                    notificationTemplate.notificationChannelId,
+                    channelName,
+                    NotificationManager.IMPORTANCE_HIGH
+                )
+                channel.enableVibration(notificationTemplate.isVibrationEnabled)
+                channel.vibrationPattern = notificationTemplate.vibrationPattern
+                channel.enableLights(notificationTemplate.isLedEnabled)
+                channel.lightColor = notificationTemplate.ledColor
+                if (notificationTemplate.isSoundEnabled) {
+                    val audioAttributes = AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+                        .build()
+                    channel.setSound(notificationTemplate.soundResourceUri, audioAttributes)
                 }
             }
+            nm.createNotificationChannel(channel)
         }
 
         Catapush.getInstance()
             .setNotificationIntent(object : IIntentProvider {
+                @SuppressLint("UnspecifiedImmutableFlag")
                 override fun getIntentForMessage(
                     message: CatapushMessage,
                     context: Context
                 ): PendingIntent {
                     val intent = Intent(
-                        context,
+                        this@MainApplication,
                         MainActivity::class.java
                     )
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    val piFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                        PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE else PendingIntent.FLAG_ONE_SHOT
-                    return PendingIntent.getActivity(context, 0, intent, piFlags)
+                    intent.data = Uri.parse("catapush://messages/" + message.id())
+                    intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    intent.putExtra("message", message)
+                    val requestCode = message.id().hashCode()
+                    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        PendingIntent.getActivity(
+                            context,
+                            requestCode,
+                            intent,
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_ONE_SHOT
+                        )
+                    } else {
+                        PendingIntent.getActivity(
+                            context,
+                            requestCode,
+                            intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_ONE_SHOT
+                        )
+                    }
                 }
             })
             .setSecureCredentialsStoreCallback(object : Callback<Boolean> {
@@ -118,31 +146,15 @@ class MainApplication : Application(), ReactApplication {
                     }
                 }
             })
-            .init(this, NOTIFICATION_CHANNEL_ID,
+            .init(this,
+                CatapushPluginModule.eventDelegate,
                 listOf(CatapushGms),
+                notificationTemplate,
+                null,
                 object : Callback<Boolean> {
                     override fun success(response: Boolean) {
                         Log.d(LOG_TAG, "Catapush has been successfully initialized")
-                        val template = NotificationTemplate.builder()
-                            .swipeToDismissEnabled(true)
-                            .title(this@MainApplication.getString(R.string.app_name))
-                            .vibrationEnabled(true)
-                            .vibrationPattern(longArrayOf(100, 200, 100, 300))
-                            .soundEnabled(true)
-                            .soundResourceUri(notificationSound)
-                            .circleColor(notificationColor)
-                            .modalNotificationThemeId(this@MainApplication, R.style.DialogTheme)
-                            .iconId(R.drawable.ic_stat_notify)
-                            .useAttachmentPreviewAsLargeIcon(true)
-                            .modalIconId(R.mipmap.ic_launcher)
-                            .ledEnabled(true)
-                            .ledColor(notificationColor)
-                            .ledOnMS(2000)
-                            .ledOffMS(1000)
-                            .build()
-                        Catapush.getInstance().setNotificationTemplate(template)
                     }
-
                     override fun failure(irrecoverableError: Throwable) {
                         Log.e(LOG_TAG, "Can't initialize Catapush!", irrecoverableError)
                     }
@@ -158,8 +170,8 @@ class MainApplication : Application(), ReactApplication {
                 try {
                     val aClass = Class.forName("com.catapush.reactnative.sdk.example.ReactNativeFlipper")
                     aClass
-                            .getMethod("initializeFlipper", Context::class.java, ReactInstanceManager::class.java)
-                            .invoke(null, context, reactInstanceManager)
+                        .getMethod("initializeFlipper", Context::class.java, ReactInstanceManager::class.java)
+                        .invoke(null, context, reactInstanceManager)
                 } catch (e: ClassNotFoundException) {
                     e.printStackTrace()
                 } catch (e: NoSuchMethodException) {

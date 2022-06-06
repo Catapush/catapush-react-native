@@ -2,14 +2,24 @@ package com.catapush.reactnative.sdk
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import com.catapush.library.Catapush
+import com.catapush.library.exceptions.CatapushAuthenticationError
+import com.catapush.library.exceptions.CatapushConnectionError
+import com.catapush.library.exceptions.PushServicesException
 import com.catapush.library.interfaces.Callback
+import com.catapush.library.interfaces.ICatapushEventDelegate
 import com.catapush.library.interfaces.RecoverableErrorCallback
 import com.catapush.library.messages.CatapushMessage
+import com.catapush.library.push.models.PushPlatformType
+import com.catapush.library.push.models.PushPluginType
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
+import com.google.android.gms.common.GoogleApiAvailability
+import java.lang.ref.WeakReference
+import java.lang.reflect.Modifier
 
 
 class CatapushPluginModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext),
@@ -19,8 +29,76 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
 
     init {
         reactContext.addLifecycleEventListener(this)
-        CatapushReactNativeReceiver.setMessagesDispatcher(this)
-        CatapushReactNativeReceiver.setStatusDispatcher(this)
+
+        try {
+            val pluginType = Catapush::class.java.getDeclaredField("pluginType")
+            pluginType.isAccessible = true
+            pluginType[Catapush.getInstance() as Catapush] = PushPluginType.ReactNative
+        } catch (e: Exception) {
+            Log.e("CatapushPluginModule", "Can't initialize plugin instance", e)
+        }
+    }
+
+    companion object {
+        private lateinit var companionContext: WeakReference<Context>
+        private var messageDispatchDelegate: IMessagesDispatchDelegate? = null
+        private var statusDispatchDelegate: IStatusDispatchDelegate? = null
+
+        val eventDelegate = object : ICatapushEventDelegate {
+
+            override fun onDisconnected(e: CatapushConnectionError) {
+                statusDispatchDelegate?.dispatchConnectionStatus("DISCONNECTED")
+            }
+
+            override fun onMessageOpened(message: CatapushMessage) {
+                // TODO
+            }
+
+            override fun onMessageOpenedConfirmed(message: CatapushMessage) {
+                // TODO
+            }
+
+            override fun onMessageSent(message: CatapushMessage) {
+                messageDispatchDelegate?.dispatchMessageSent(message)
+            }
+
+            override fun onMessageSentConfirmed(message: CatapushMessage) {
+                // TODO
+            }
+
+            override fun onMessageReceived(message: CatapushMessage) {
+                messageDispatchDelegate?.dispatchMessageReceived(message)
+            }
+
+            override fun onRegistrationFailed(error: CatapushAuthenticationError) {
+                CatapushAuthenticationError::class.java.declaredFields.firstOrNull {
+                    Modifier.isStatic(it.modifiers)
+                            && it.type == Integer::class
+                            && it.getInt(error) == error.reasonCode
+                }?.also { statusDispatchDelegate?.dispatchError(it.name, error.reasonCode) }
+            }
+
+            override fun onConnecting() {
+                statusDispatchDelegate?.dispatchConnectionStatus("CONNECTING")
+            }
+
+            override fun onConnected() {
+                statusDispatchDelegate?.dispatchConnectionStatus("CONNECTED")
+            }
+
+            override fun onPushServicesError(e: PushServicesException) {
+                // TODO
+                if (PushPlatformType.GMS.name == e.platform && e.isUserResolvable) {
+                    // It's a GMS error and it's user resolvable: show a notification to the user
+                    val gmsAvailability = GoogleApiAvailability.getInstance()
+                    /*gmsAvailability.setDefaultNotificationChannelId(
+                        context, brandSupport.getNotificationChannelId(context)
+                    )*/
+                    gmsAvailability.showErrorNotification(companionContext.get()!!, e.errorCode)
+                }
+            }
+
+        }
     }
 
     override fun getName() = "CatapushPluginModule"
@@ -77,7 +155,11 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     @SuppressLint("RestrictedApi")
     @ReactMethod
     fun init(appId: String, promise: Promise) {
-        if (Catapush.getInstance().isInitialized.blockingFirst(false)) {
+        messageDispatchDelegate = this
+        statusDispatchDelegate = this
+        companionContext = WeakReference(currentActivity?.applicationContext)
+
+        if ((Catapush.getInstance() as Catapush).isInitialized.blockingFirst(false)) {
             promise.resolve(true)
         } else {
             promise.reject("bad state", Error("Please invoke Catapush.getInstance().init(...) in the Application.onCreate(...) callback of your Android native app"))
@@ -261,7 +343,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
         map.putMap("optionalData", this.data()?.run {
             val data = Arguments.createMap()
             forEach { (key, value) -> data.putString(key, value) }
-            return data
+            return@run data
         })
         map.putString("replyToId", this.originalMessageId())
         map.putString("state", this.state())
