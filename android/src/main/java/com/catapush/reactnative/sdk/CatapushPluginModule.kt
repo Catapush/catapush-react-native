@@ -213,6 +213,18 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     @ReactMethod
+    fun logout(promise: Promise) {
+        Catapush.getInstance().logout(object : Callback<Boolean> {
+            override fun success(response: Boolean) {
+                promise.resolve(true)
+            }
+            override fun failure(irrecoverableError: Throwable) {
+                promise.reject("op failed", irrecoverableError.localizedMessage, irrecoverableError)
+            }
+        })
+    }
+
+    @ReactMethod
     fun sendMessage(message: ReadableMap, promise: Promise) {
         val body = message.getString("body")
         val channel = message.getString("channel")
