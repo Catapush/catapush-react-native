@@ -70,6 +70,10 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
                 messageDispatchDelegate?.dispatchMessageReceived(message)
             }
 
+            override fun onMessageReceivedConfirmed(p0: CatapushMessage?) {
+                // TODO
+            }
+
             override fun onRegistrationFailed(error: CatapushAuthenticationError) {
                 CatapushAuthenticationError::class.java.declaredFields.firstOrNull {
                     Modifier.isStatic(it.modifiers)
@@ -159,7 +163,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
         statusDispatchDelegate = this
         companionContext = WeakReference(currentActivity?.applicationContext)
 
-        if ((Catapush.getInstance() as Catapush).isInitialized.blockingFirst(false)) {
+        if ((Catapush.getInstance() as Catapush).waitInitialization()) {
             promise.resolve(true)
         } else {
             promise.reject("bad state", Error("Please invoke Catapush.getInstance().init(...) in the Application.onCreate(...) callback of your Android native app"))
