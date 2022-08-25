@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Appbar, DefaultTheme, IconButton, Provider as PaperProvider, Snackbar, TextInput } from 'react-native-paper';
 import Catapush, { CatapushError, CatapushFile, CatapushMessage, CatapushMessageDelegate, CatapushMessageWidget, CatapushState, CatapushStateDelegate } from 'catapush-react-native'
 import { AppState, FlatList, Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native'
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 const theme = {
   ...DefaultTheme,
@@ -119,6 +119,7 @@ const App = () => {
       <SafeAreaView style={styles.container}>
         <Appbar.Header>
           <Appbar.Content title='Catapush React Native Example' color='white' />
+          <Appbar.Action icon="logout" onPress={() => { Catapush.logout() }} color='white' />
         </Appbar.Header>
         <Snackbar
           visible={stateSnackbarVisible}
@@ -130,12 +131,12 @@ const App = () => {
           inverted
           data={messages}
           renderItem={(info) => {
-             return <CatapushMessageWidget message={info.item} />
-            }}
+            return <CatapushMessageWidget message={info.item} />
+          }}
           keyExtractor={item => item.id}
         />
         <View style={styles.messageInputContainer}>
-        <IconButton
+          <IconButton
             icon='camera'
             color='white'
             size={34}
@@ -145,14 +146,14 @@ const App = () => {
               });
               console.log(result);
               const assets = result.assets
-              if (assets != null){
+              if (assets != null) {
                 const asset = assets[0];
                 const type = asset.type
                 const uri = asset.uri
-                if (type != null && uri != null){
+                if (type != null && uri != null) {
                   Catapush.sendMessage(outboundMessage, null, null, new CatapushFile(type, uri))
-                  .then((_) => setOutboundMessage(''))
-                  }
+                    .then((_) => setOutboundMessage(''))
+                }
               }
             }} />
           <TextInput

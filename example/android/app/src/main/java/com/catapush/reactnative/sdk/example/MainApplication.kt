@@ -21,7 +21,9 @@ import com.catapush.library.interfaces.IIntentProvider
 import com.catapush.library.messages.CatapushMessage
 import com.catapush.library.notifications.NotificationTemplate
 import com.catapush.reactnative.sdk.CatapushPluginModule
+import com.catapush.reactnative.sdk.example.newarchitecture.MainApplicationReactNativeHost
 import com.facebook.react.*
+import com.facebook.react.config.ReactFeatureFlags
 import com.facebook.soloader.SoLoader
 import java.lang.reflect.InvocationTargetException
 
@@ -44,12 +46,21 @@ class MainApplication : Application(), ReactApplication {
         }
     }
 
+    private val mNewArchitectureNativeHost = MainApplicationReactNativeHost(this)
+
+
     override fun getReactNativeHost(): ReactNativeHost {
-        return mReactNativeHost
+        return if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+            mNewArchitectureNativeHost
+        } else {
+            mReactNativeHost
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
+        // If you opted-in for the New Architecture, we enable the TurboModule system
+        ReactFeatureFlags.useTurboModules = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
         SoLoader.init(this, false)
         initializeFlipper(this, reactNativeHost.reactInstanceManager)
 
