@@ -124,12 +124,6 @@ const App = () => {
               (reason) => console.log('Logout failed, reason: ' + reason))
           }} color='white' />
         </Appbar.Header>
-        <Snackbar
-          visible={stateSnackbarVisible}
-          duration={3000}
-          onDismiss={() => setStateSnackbarVisible(false)}>
-          {'Catapush state: ' + catapushState}
-        </Snackbar>
         <FlatList
           inverted
           data={messages}
@@ -174,6 +168,12 @@ const App = () => {
                 .then((_) => setOutboundMessage(''))
             }} />
         </View>
+        <Snackbar
+          visible={stateSnackbarVisible}
+          duration={3000}
+          onDismiss={() => setStateSnackbarVisible(false)}>
+          {'Catapush state: ' + catapushState}
+        </Snackbar>
       </SafeAreaView>
     </PaperProvider>
   )
