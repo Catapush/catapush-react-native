@@ -119,7 +119,10 @@ const App = () => {
       <SafeAreaView style={styles.container}>
         <Appbar.Header>
           <Appbar.Content title='Catapush React Native Example' color='white' />
-          <Appbar.Action icon="logout" onPress={() => { Catapush.logout() }} color='white' />
+          <Appbar.Action icon="logout" onPress={() => {
+            Catapush.logout().then((success) => console.log('Logout successful'),
+              (reason) => console.log('Logout failed, reason: ' + reason))
+          }} color='white' />
         </Appbar.Header>
         <Snackbar
           visible={stateSnackbarVisible}
