@@ -41,5 +41,5 @@ target 'example' do
 end
 
 target 'Service' do
-  pod 'catapush-ios-sdk-pod', '2.1.15'
+  pod 'catapush-ios-sdk-pod', '2.1.18'
 end

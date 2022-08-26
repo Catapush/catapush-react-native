@@ -72,7 +72,7 @@ class CatapushPluginModule: RCTEventEmitter {
     func enableLog(_ enabled: Bool, resolver resolve: @escaping RCTPromiseResolveBlock,
                    rejecter reject: @escaping RCTPromiseRejectBlock ) -> Void {
         Catapush.enableLog(enabled)
-        resolve(true);
+        resolve(true)
     }
     
     @objc
@@ -92,7 +92,7 @@ class CatapushPluginModule: RCTEventEmitter {
     func setUser(_ identifier: String, password:String, resolver resolve: @escaping RCTPromiseResolveBlock,
                  rejecter reject: @escaping RCTPromiseRejectBlock ) -> Void {
         Catapush.setIdentifier(identifier, andPassword: password)
-        resolve(true);
+        resolve(true)
     }
     
     @objc
@@ -104,16 +104,26 @@ class CatapushPluginModule: RCTEventEmitter {
         NotificationCenter.default.addObserver(self, selector: #selector(statusChanged), name: CatapushPluginModule.catapushStatusChangedNotification, object: nil)
         Catapush.setAppKey(appId)
         DispatchQueue.main.async {
-            Catapush.registerUserNotification(UIApplication.shared.delegate as? UIResponder)
+            Catapush.registerUserNotification(UIApplication.shared.delegate as! UIResponder)
         }
-        resolve(true);
+        resolve(true)
     }
     
     @objc
     func start(_ resolve: @escaping RCTPromiseResolveBlock,
                rejecter reject: @escaping RCTPromiseRejectBlock ) -> Void {
         Catapush.start(nil)
-        resolve(true);
+        resolve(true)
+    }
+    
+    @objc
+    func logout(_ resolve: @escaping RCTPromiseResolveBlock,
+               rejecter reject: @escaping RCTPromiseRejectBlock ) -> Void {
+        Catapush.logoutStoredUser {
+            resolve(true)
+        } failure: {
+            reject("op failed", "network problem", nil)
+        }
     }
     
     @objc
@@ -157,7 +167,7 @@ class CatapushPluginModule: RCTEventEmitter {
                 if let replyTo = replyTo {
                     message = Catapush.sendMessage(withText: text, replyTo: replyTo)
                 }else{
-                    message = Catapush.sendMessage(withText: text)!
+                    message = Catapush.sendMessage(withText: text)
                 }
             }
         }
@@ -179,7 +189,8 @@ class CatapushPluginModule: RCTEventEmitter {
             return
         }
         let predicate = NSPredicate(format: "messageId = %@", id)
-        guard let matches = Catapush.messages(with: predicate), matches.count > 0 else {
+        let matches = Catapush.messages(with: predicate)
+        guard matches.count > 0 else {
             resolve(["url": ""])
             return
         }
@@ -192,14 +203,14 @@ class CatapushPluginModule: RCTEventEmitter {
                           return
                       }
                 let tempDirectoryURL = NSURL.fileURL(withPath: NSTemporaryDirectory(), isDirectory: true)
-                let filePath = tempDirectoryURL.appendingPathComponent("\(messageIP.messageId!).\(ext.takeRetainedValue())")
+                let filePath = tempDirectoryURL.appendingPathComponent("\(messageIP.messageId).\(ext.takeRetainedValue())")
                 let fileManager = FileManager.default
                 if fileManager.fileExists(atPath: filePath.path) {
                     resolve(["url": filePath.absoluteString, "mimeType": messageIP.mmType])
                     return
                 }
                 do {
-                    try messageIP.mm.write(to: filePath)
+                    try messageIP.mm!.write(to: filePath)
                     resolve(["url": filePath.absoluteString, "mimeType": messageIP.mmType])
                 } catch {
                     reject("Could not write file", error.localizedDescription, nil)
@@ -211,7 +222,8 @@ class CatapushPluginModule: RCTEventEmitter {
                             reject("Error downloadMedia", error?.localizedDescription, nil)
                         }else{
                             let predicate = NSPredicate(format: "messageId = %@", id)
-                            if let matches = Catapush.messages(with: predicate), matches.count > 0 {
+                            let matches = Catapush.messages(with: predicate)
+                            if matches.count > 0 {
                                 let messageIP = matches.first! as! MessageIP
                                 if messageIP.hasMedia() {
                                     if messageIP.mm != nil {
@@ -221,14 +233,14 @@ class CatapushPluginModule: RCTEventEmitter {
                                                   return
                                               }
                                         let tempDirectoryURL = NSURL.fileURL(withPath: NSTemporaryDirectory(), isDirectory: true)
-                                        let filePath = tempDirectoryURL.appendingPathComponent("\(messageIP.messageId!).\(ext.takeRetainedValue())")
+                                        let filePath = tempDirectoryURL.appendingPathComponent("\(messageIP.messageId).\(ext.takeRetainedValue())")
                                         let fileManager = FileManager.default
                                         if fileManager.fileExists(atPath: filePath.path) {
                                             resolve(["url": filePath.absoluteString])
                                             return
                                         }
                                         do {
-                                            try messageIP.mm.write(to: filePath)
+                                            try messageIP.mm!.write(to: filePath)
                                             resolve(["url": filePath.absoluteString, "mimeType": messageIP.mmType])
                                         } catch {
                                             reject("Could not write file", error.localizedDescription, nil)
@@ -256,7 +268,7 @@ class CatapushPluginModule: RCTEventEmitter {
     @objc
     func sendMessageReadNotificationWithId(_ messageId: String?, resolver resolve: @escaping RCTPromiseResolveBlock,
                      rejecter reject: @escaping RCTPromiseRejectBlock ) -> Void {
-        guard messageId != nil else {
+        guard let messageId = messageId else {
             reject("bad args", "Empty argument", nil)
             return
         }
@@ -280,7 +292,7 @@ class CatapushPluginModule: RCTEventEmitter {
         }
         let result: Dictionary<String, String> = [
             "status": status,
-        ];
+        ]
         self.sendEvent(withName: "Catapush#catapushStateChanged", body: result)
     }
     
@@ -310,14 +322,14 @@ class CatapushPluginModule: RCTEventEmitter {
                      [Catapush setAppKey:@"YOUR_APP_KEY"];
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "INVALID_APP_KEY", "code": CatapushErrorCode.INVALID_APP_KEY.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.USER_NOT_FOUND.rawValue:
                     /*
                      Please check if you have provided a valid username and password to Catapush via this method:
                      [Catapush setIdentifier:username andPassword:password];
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "USER_NOT_FOUND", "code": CatapushErrorCode.USER_NOT_FOUND.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.WRONG_AUTHENTICATION.rawValue:
                     /*
                      Please verify your identifier and password validity. The user might have been deleted from the Catapush app (via API or from the dashboard) or the password has changed.
@@ -325,22 +337,22 @@ class CatapushPluginModule: RCTEventEmitter {
                      Provide a new identifier to this installation to solve the issue.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "WRONG_AUTHENTICATION", "code": CatapushErrorCode.WRONG_AUTHENTICATION.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.GENERIC.rawValue:
                     /*
                      An unexpected internal error on the remote messaging service has occurred.
                      This is probably due to a temporary service disruption.
                      Please try again in a few minutes.
                      */
-                    self.retry(delayInSeconds: LONG_DELAY);
-                    break;
+                    self.retry(delayInSeconds: LONG_DELAY)
+                    break
                 case CatapushErrorCode.XMPP_MULTIPLE_LOGIN.rawValue:
                     /*
                      The same user identifier has been logged on another device, the messaging service will be stopped on this device
                      Please check that you are using a unique identifier for each device, even on devices owned by the same user.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "XMPP_MULTIPLE_LOGIN", "code": CatapushErrorCode.XMPP_MULTIPLE_LOGIN.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.API_UNAUTHORIZED.rawValue:
                     /*
                      The credentials has been rejected    Please verify your identifier and password validity. The user might have been deleted from the Catapush app (via API or from the dashboard) or the password has changed.
@@ -348,7 +360,7 @@ class CatapushPluginModule: RCTEventEmitter {
                      Provide a new identifier to this installation to solve the issue.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "API_UNAUTHORIZED", "code": CatapushErrorCode.API_UNAUTHORIZED.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.API_INTERNAL_ERROR.rawValue:
                     /*
                      Internal error of the remote messaging service
@@ -357,16 +369,16 @@ class CatapushPluginModule: RCTEventEmitter {
                      This is probably due to a temporary service disruption.
                      Please try again in a few minutes.
                      */
-                    self.retry(delayInSeconds: LONG_DELAY);
-                    break;
+                    self.retry(delayInSeconds: LONG_DELAY)
+                    break
                 case CatapushErrorCode.REGISTRATION_BAD_REQUEST.rawValue:
                     /*
                      Internal error of the remote messaging service    An unexpected internal error on the remote messaging service has occurred.
                      This is probably due to a temporary service disruption.
                      Please try again in a few minutes.
                      */
-                    self.retry(delayInSeconds: LONG_DELAY);
-                    break;
+                    self.retry(delayInSeconds: LONG_DELAY)
+                    break
                 case CatapushErrorCode.REGISTRATION_FORBIDDEN_WRONG_AUTH.rawValue:
                     /*
                      Wrong auth    Please verify your identifier and password validity. The user might have been deleted from the Catapush app (via API or from the dashboard) or the password has changed.
@@ -374,7 +386,7 @@ class CatapushPluginModule: RCTEventEmitter {
                      Provide a new identifier to this installation to solve the issue.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "REGISTRATION_FORBIDDEN_WRONG_AUTH", "code": CatapushErrorCode.REGISTRATION_FORBIDDEN_WRONG_AUTH.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.REGISTRATION_NOT_FOUND_APPLICATION.rawValue:
                     /*
                      Application not found
@@ -383,7 +395,7 @@ class CatapushPluginModule: RCTEventEmitter {
                      You should not keep retrying.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "REGISTRATION_NOT_FOUND_APPLICATION", "code": CatapushErrorCode.REGISTRATION_NOT_FOUND_APPLICATION.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.REGISTRATION_NOT_FOUND_USER.rawValue:
                     /*
                      User not found
@@ -392,47 +404,47 @@ class CatapushPluginModule: RCTEventEmitter {
                      Provide a new identifier to this installation to solve the issue.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "REGISTRATION_NOT_FOUND_USER", "code": CatapushErrorCode.REGISTRATION_NOT_FOUND_USER.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.REGISTRATION_INTERNAL_ERROR.rawValue:
                     /*
                      Internal error of the remote messaging service    An unexpected internal error on the remote messaging service has occurred.
                      This is probably due to a temporary service disruption.
                      Please try again in a few minutes.
                      */
-                    self.retry(delayInSeconds: LONG_DELAY);
-                    break;
+                    self.retry(delayInSeconds: LONG_DELAY)
+                    break
                 case CatapushErrorCode.OAUTH_BAD_REQUEST.rawValue:
                     /*
                      Internal error of the remote messaging service    An unexpected internal error on the remote messaging service has occurred.
                      This is probably due to a temporary service disruption.
                      Please try again in a few minutes.
                      */
-                    self.retry(delayInSeconds: LONG_DELAY);
-                    break;
+                    self.retry(delayInSeconds: LONG_DELAY)
+                    break
                 case CatapushErrorCode.OAUTH_BAD_REQUEST_INVALID_CLIENT.rawValue:
                     /*
                      Internal error of the remote messaging service    An unexpected internal error on the remote messaging service has occurred.
                      This is probably due to a temporary service disruption.
                      Please try again in a few minutes.
                      */
-                    self.retry(delayInSeconds: LONG_DELAY);
-                    break;
+                    self.retry(delayInSeconds: LONG_DELAY)
+                    break
                 case CatapushErrorCode.OAUTH_BAD_REQUEST_INVALID_GRANT.rawValue:
                     /*
                      Internal error of the remote messaging service    An unexpected internal error on the remote messaging service has occurred.
                      This is probably due to a temporary service disruption.
                      Please try again in a few minutes.
                      */
-                    self.retry(delayInSeconds: LONG_DELAY);
-                    break;
+                    self.retry(delayInSeconds: LONG_DELAY)
+                    break
                 case CatapushErrorCode.OAUTH_INTERNAL_ERROR.rawValue:
                     /*
                      Internal error of the remote messaging service    An unexpected internal error on the remote messaging service has occurred.
                      This is probably due to a temporary service disruption.
                      Please try again in a few minutes.
                      */
-                    self.retry(delayInSeconds: LONG_DELAY);
-                    break;
+                    self.retry(delayInSeconds: LONG_DELAY)
+                    break
                 case CatapushErrorCode.UPDATE_PUSH_TOKEN_FORBIDDEN_WRONG_AUTH.rawValue:
                     /*
                      Credentials error
@@ -442,7 +454,7 @@ class CatapushPluginModule: RCTEventEmitter {
                      Provide a new identifier to this installation to solve the issue.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "UPDATE_PUSH_TOKEN_FORBIDDEN_WRONG_AUTH", "code": CatapushErrorCode.UPDATE_PUSH_TOKEN_FORBIDDEN_WRONG_AUTH.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.UPDATE_PUSH_TOKEN_FORBIDDEN_NOT_PERMITTED.rawValue:
                     /*
                      Credentials error
@@ -452,7 +464,7 @@ class CatapushPluginModule: RCTEventEmitter {
                      Provide a new identifier to this installation to solve the issue.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "UPDATE_PUSH_TOKEN_FORBIDDEN_NOT_PERMITTED", "code": CatapushErrorCode.UPDATE_PUSH_TOKEN_FORBIDDEN_NOT_PERMITTED.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.UPDATE_PUSH_TOKEN_NOT_FOUND_CUSTOMER.rawValue:
                     /*
                      Application error
@@ -461,7 +473,7 @@ class CatapushPluginModule: RCTEventEmitter {
                      You should not keep retrying.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "UPDATE_PUSH_TOKEN_NOT_FOUND_CUSTOMER", "code": CatapushErrorCode.UPDATE_PUSH_TOKEN_NOT_FOUND_CUSTOMER.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.UPDATE_PUSH_TOKEN_NOT_FOUND_APPLICATION.rawValue:
                     /*
                      Application not found
@@ -470,7 +482,7 @@ class CatapushPluginModule: RCTEventEmitter {
                      You should not keep retrying.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "UPDATE_PUSH_TOKEN_NOT_FOUND_APPLICATION", "code": CatapushErrorCode.UPDATE_PUSH_TOKEN_NOT_FOUND_APPLICATION.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.UPDATE_PUSH_TOKEN_NOT_FOUND_USER.rawValue:
                     /*
                      User not found
@@ -480,7 +492,7 @@ class CatapushPluginModule: RCTEventEmitter {
                      Provide a new identifier to this installation to solve the issue.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "UPDATE_PUSH_TOKEN_NOT_FOUND_USER", "code": CatapushErrorCode.UPDATE_PUSH_TOKEN_NOT_FOUND_USER.rawValue])
-                    break;
+                    break
                 case CatapushErrorCode.UPDATE_PUSH_TOKEN_INTERNAL_ERROR.rawValue:
                     /*
                      Internal error of the remote messaging service when updating the push token.
@@ -489,16 +501,16 @@ class CatapushPluginModule: RCTEventEmitter {
                      An unexpected internal error on the remote messaging service has occurred.
                      This is probably due to a temporary service disruption.
                      */
-                    self.retry(delayInSeconds: LONG_DELAY);
-                    break;
+                    self.retry(delayInSeconds: LONG_DELAY)
+                    break
                 case CatapushErrorCode.NETWORK_ERROR.rawValue:
                     /*
                      The SDK couldn’t establish a connection to the Catapush remote messaging service.
                      
                      The device is not connected to the internet or it might be blocked by a firewall or the remote messaging service might be temporarily disrupted.    Please check your internet connection and try to reconnect again.
                      */
-                    self.retry(delayInSeconds: SHORT_DELAY);
-                    break;
+                    self.retry(delayInSeconds: SHORT_DELAY)
+                    break
                 case CatapushErrorCode.PUSH_TOKEN_UNAVAILABLE.rawValue:
                     /*
                      Push token is not available.
@@ -506,9 +518,9 @@ class CatapushPluginModule: RCTEventEmitter {
                      Nothing, it's handled automatically by the sdk.
                      */
                     eventEmitter.sendEvent(withName: "Catapush#catapushHandleError", body: ["event" : "PUSH_TOKEN_UNAVAILABLE", "code": CatapushErrorCode.PUSH_TOKEN_UNAVAILABLE.rawValue])
-                    break;
+                    break
                 default:
-                    break;
+                    break
                 }
             }
         }
@@ -550,7 +562,7 @@ class CatapushPluginModule: RCTEventEmitter {
             "state": getStateForMessage(message: message),
             "sentTime": formatter.string(from: message.sentTime),
             "hasAttachment": message.hasMedia()
-        ];
+        ]
     }
     
     public static func getStateForMessage(message: MessageIP) -> String{

@@ -21,6 +21,9 @@ RCT_EXTERN_METHOD(resumeNotifications: (RCTPromiseResolveBlock)resolve
 RCT_EXTERN_METHOD(start: (RCTPromiseResolveBlock)resolve
                   rejecter: (RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(logout: (RCTPromiseResolveBlock)resolve
+                  rejecter: (RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(enableLog: (BOOL)value
                   resolver: (RCTPromiseResolveBlock)resolve
                   rejecter: (RCTPromiseRejectBlock)reject)
