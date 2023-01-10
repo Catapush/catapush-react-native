@@ -1,15 +1,11 @@
 package com.catapush.reactnative.sdk.example
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.media.AudioAttributes
 import android.media.RingtoneManager
-import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
@@ -17,9 +13,8 @@ import com.catapush.library.Catapush
 import com.catapush.library.exceptions.CatapushCompositeException
 import com.catapush.library.gms.CatapushGms
 import com.catapush.library.interfaces.Callback
-import com.catapush.library.interfaces.IIntentProvider
-import com.catapush.library.messages.CatapushMessage
 import com.catapush.library.notifications.NotificationTemplate
+import com.catapush.reactnative.sdk.CatapushPluginIntentProvider
 import com.catapush.reactnative.sdk.CatapushPluginModule
 import com.catapush.reactnative.sdk.example.newarchitecture.MainApplicationReactNativeHost
 import com.facebook.react.*
@@ -108,37 +103,7 @@ class MainApplication : Application(), ReactApplication {
         }
 
         Catapush.getInstance()
-            .setNotificationIntent(object : IIntentProvider {
-                @SuppressLint("UnspecifiedImmutableFlag")
-                override fun getIntentForMessage(
-                    message: CatapushMessage,
-                    context: Context
-                ): PendingIntent {
-                    val intent = Intent(
-                        this@MainApplication,
-                        MainActivity::class.java
-                    )
-                    intent.data = Uri.parse("catapush://messages/" + message.id())
-                    intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    intent.putExtra("message", message)
-                    val requestCode = message.id().hashCode()
-                    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        PendingIntent.getActivity(
-                            context,
-                            requestCode,
-                            intent,
-                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_ONE_SHOT
-                        )
-                    } else {
-                        PendingIntent.getActivity(
-                            context,
-                            requestCode,
-                            intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_ONE_SHOT
-                        )
-                    }
-                }
-            })
+            .setNotificationIntent(CatapushPluginIntentProvider(MainActivity::class.java))
             .setSecureCredentialsStoreCallback(object : Callback<Boolean> {
                 override fun success(response: Boolean) {
                     Log.i(LOG_TAG, "Secure credentials storage has been initialized!")
