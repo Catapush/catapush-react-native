@@ -88,6 +88,12 @@ export default class Catapush {
         objectToCatapushMessage(payload.message)
       )
     })
+    eventManager.setEventHandler(CATAPUSH_NOTIFICATION_TAPPED, (payload: any) => {
+      console.log('CATAPUSH NOTIFICATION TAPPED ' + payload.message.id)
+      this.messageDelegate?.catapushNotificationTapped(
+        objectToCatapushMessage(payload.message)
+      )
+    })
     eventManager.setEventHandler(CATAPUSH_STATE_CHANGED, (payload: any) => {
       console.log('CATAPUSH STATE ' + payload.status)
       this.stateDelegate?.catapushStateChanged(payload.status)

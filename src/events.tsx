@@ -6,12 +6,14 @@ import {
 
 export const CATAPUSH_MESSAGE_RECEIVED = 'Catapush#catapushMessageReceived'
 export const CATAPUSH_MESSAGE_SENT = 'Catapush#catapushMessageSent'
+export const CATAPUSH_NOTIFICATION_TAPPED = 'Catapush#catapushNotificationTapped'
 export const CATAPUSH_STATE_CHANGED = 'Catapush#catapushStateChanged'
 export const CATAPUSH_HANDLE_ERROR = 'Catapush#catapushHandleError'
 
 const eventList = [
   CATAPUSH_MESSAGE_RECEIVED,
   CATAPUSH_MESSAGE_SENT,
+  CATAPUSH_NOTIFICATION_TAPPED,
   CATAPUSH_STATE_CHANGED,
   CATAPUSH_HANDLE_ERROR,
 ]

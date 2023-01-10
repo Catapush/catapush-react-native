@@ -83,6 +83,7 @@ export enum CatapushMessageState {
 export interface CatapushMessageDelegate {
   catapushMessageReceived(message: CatapushMessage): void
   catapushMessageSent(message: CatapushMessage): void
+  catapushNotificationTapped(message: CatapushMessage): void
 }
 
 export enum CatapushState {
