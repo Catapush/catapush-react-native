@@ -26,6 +26,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     LifecycleEventListener, IMessagesDispatchDelegate, IStatusDispatchDelegate {
 
     private var activity: Activity? = null
+    private var inited = false
 
     init {
         reactContext.addLifecycleEventListener(this)
@@ -37,12 +38,29 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
         } catch (e: Exception) {
             Log.e("CatapushPluginModule", "Can't initialize plugin instance", e)
         }
+
+        instanceRef = WeakReference(this)
     }
 
     companion object {
         private lateinit var companionContext: WeakReference<Context>
         private var messageDispatchDelegate: IMessagesDispatchDelegate? = null
         private var statusDispatchDelegate: IStatusDispatchDelegate? = null
+        private var instanceRef: WeakReference<CatapushPluginModule>? = null
+            set(value) {
+                field = value
+                value?.get()?.tryDispatchQueuedEvents()
+            }
+        private val tappedMessagesQueue = ArrayList<CatapushMessage>()
+
+        fun handleNotificationTapped(message: CatapushMessage) {
+            val instance = instanceRef?.get()
+            if (instance?.isChannelReady() == true) {
+                instance.dispatchNotificationTapped(message)
+            } else {
+                tappedMessagesQueue.add(message)
+            }
+        }
 
         val eventDelegate = object : ICatapushEventDelegate {
 
@@ -123,6 +141,17 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
         activity = null
     }
 
+    private fun isChannelReady() : Boolean {
+        return inited && instanceRef?.get() != null && activity != null
+    }
+
+    private fun tryDispatchQueuedEvents() {
+        if (isChannelReady() && tappedMessagesQueue.isNotEmpty()) {
+            tappedMessagesQueue.forEach { dispatchNotificationTapped(it) }
+            tappedMessagesQueue.clear()
+        }
+    }
+
     @ReactMethod
     fun addListener(eventName: String) {
     }
@@ -141,6 +170,12 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
         val params = Arguments.createMap()
         params.putMap("message", message.toMap())
         sendEvent("Catapush#catapushMessageSent", params)
+    }
+
+    override fun dispatchNotificationTapped(message: CatapushMessage) {
+        val params = Arguments.createMap()
+        params.putMap("message", message.toMap())
+        sendEvent("Catapush#catapushNotificationTapped", params)
     }
 
     override fun dispatchConnectionStatus(status: String) {
@@ -163,7 +198,9 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
         statusDispatchDelegate = this
         companionContext = WeakReference(currentActivity?.applicationContext)
 
-        if ((Catapush.getInstance() as Catapush).waitInitialization()) {
+        inited = (Catapush.getInstance() as Catapush).waitInitialization()
+        if (inited) {
+            tryDispatchQueuedEvents()
             promise.resolve(true)
         } else {
             promise.reject("bad state", Error("Please invoke Catapush.getInstance().init(...) in the Application.onCreate(...) callback of your Android native app"))

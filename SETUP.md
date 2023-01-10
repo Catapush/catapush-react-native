@@ -159,23 +159,28 @@ Set your Catapush app key declaring this meta-data inside the application node o
 
 _YOUR_APP_KEY_ is the _AppKey_ of your Catapush App (go to your [Catapush App configuration dashboard](https://www.catapush.com/panel/dashboard), select your App by clicking "View Panel" and then click on App details section)
 
+Then you need to declare the Catapush broadcast receiver and a permission to secure its broadcasts.
+
 ### [Android] Application class customization
 
-You must initialize Catapush in your class that extends `Application`.
+You must initialize Catapush in your class that extends `Application` implementing the `ICatapushInitializer` interface.
 
 You also have to provide your customized notification style template here.
 
 Your `Application.onCreate()` method should contain the following lines:
 
 ```java
-public class MyApplication extends MultiDexApplication {
+public class MyApplication extends MultiDexApplication implements ReactApplication, ICatapushInitializer {
 
     private static final String NOTIFICATION_CHANNEL_ID = "your.app.package.CHANNEL_ID";
 
     @Override
     public void onCreate() {
         super.onCreate();
+        initCatapush();
+    }
 
+    public void initCatapush() {
         // This is the notification template that the Catapush SDK uses to build
         // the status bar notification shown to the user.
         // Customize this template to fit your needs.
@@ -221,24 +226,12 @@ public class MyApplication extends MultiDexApplication {
         }
 
         Catapush.getInstance()
-            .setNotificationIntent((catapushMessage, context) -> {
-                Log.d("MyApp", "Notification tapped: " + catapushMessage);
-                // This is the Activity you want to open when a notification is tapped:
-                Intent intent = new Intent(context, MainActivity.class);
-                // This is a unique URI set to the Intent to avoid its recycling for different
-                // Notifications when it's set as PendingIntent in the NotificationManager.
-                // There's no need to provide a valid scheme or path, it just need to be unique.
-                intent.setData(Uri.parse("catapush://message/" + catapushMessage.id()));
-                intent.putExtra("message", catapushMessage);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                // This PendingIntent will be set as "ContentIntent" in the local notification
-                // shown to the user in the Android notifications UI and launched on tap
-                return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_ONE_SHOT);
-            })
             .init(
+                this,
                 this,
                 CatapushPluginModule.Companion.getEventDelegate(),
                 Collections.singletonList(CatapushGms.INSTANCE),
+                CatapushPluginIntentProvider(MainActivity.class),
                 template,
                 null, // You can pass more templates here if you want to support multiple notification channels
                 new Callback() {
@@ -268,6 +261,30 @@ If you are defining a custom application class for your app for the first time, 
 ```
 
 Please note that, to be used, the `MultiDexApplication` requires your app to depend on the `androidx.multidex:multidex` dependency.
+
+### [Android] MainActivity class customization
+
+Your `MainActivity` implementation must forward the received `Intent`s to make the `catapushNotificationTapped` callback work:
+
+```java
+public class MainActivity extends ReactActivity {
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        CatapushPluginIntentProvider.Companion.handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+        CatapushPluginIntentProvider.Companion.handleIntent(intent);
+    }
+
+}
+```
+
+The `Intent` instances will be handled only if generated from a Catapush notification.
 
 ### [Android] Configure a push services provider
 

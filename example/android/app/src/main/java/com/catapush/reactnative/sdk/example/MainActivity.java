@@ -1,5 +1,9 @@
 package com.catapush.reactnative.sdk.example;
 
+import android.content.Intent;
+import android.os.Bundle;
+
+import com.catapush.reactnative.sdk.CatapushPluginIntentProvider;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
@@ -36,5 +40,17 @@ public class MainActivity extends ReactActivity {
       reactRootView.setIsFabric(BuildConfig.IS_NEW_ARCHITECTURE_ENABLED);
       return reactRootView;
     }
+  }
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    CatapushPluginIntentProvider.Companion.handleIntent(getIntent());
+  }
+
+  @Override
+  public void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    CatapushPluginIntentProvider.Companion.handleIntent(intent);
   }
 }

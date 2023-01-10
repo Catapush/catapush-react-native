@@ -46,7 +46,8 @@ const App = () => {
     },
     catapushMessageSent(message: CatapushMessage) {
       getMessages()
-    }
+    },
+    catapushNotificationTapped(message: CatapushMessage) { }
   }
 
   var stateDelegate: CatapushStateDelegate = {
