@@ -10,9 +10,9 @@ import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.catapush.library.Catapush
-import com.catapush.library.exceptions.CatapushCompositeException
 import com.catapush.library.gms.CatapushGms
 import com.catapush.library.interfaces.Callback
+import com.catapush.library.interfaces.ICatapushInitializer
 import com.catapush.library.notifications.NotificationTemplate
 import com.catapush.reactnative.sdk.CatapushPluginIntentProvider
 import com.catapush.reactnative.sdk.CatapushPluginModule
@@ -22,7 +22,7 @@ import com.facebook.react.config.ReactFeatureFlags
 import com.facebook.soloader.SoLoader
 import java.lang.reflect.InvocationTargetException
 
-class MainApplication : Application(), ReactApplication {
+class MainApplication : Application(), ReactApplication, ICatapushInitializer {
 
     private val mReactNativeHost = object : ReactNativeHost(this) {
         override fun getUseDeveloperSupport(): Boolean {
@@ -59,6 +59,10 @@ class MainApplication : Application(), ReactApplication {
         SoLoader.init(this, false)
         initializeFlipper(this, reactNativeHost.reactInstanceManager)
 
+        initCatapush()
+    }
+
+    override fun initCatapush() {
         val notificationColor = ContextCompat.getColor(this, R.color.colorPrimary)
 
         val notificationTemplate = NotificationTemplate.Builder(NOTIFICATION_CHANNEL_ID)
@@ -103,26 +107,11 @@ class MainApplication : Application(), ReactApplication {
         }
 
         Catapush.getInstance()
-            .setNotificationIntent(CatapushPluginIntentProvider(MainActivity::class.java))
-            .setSecureCredentialsStoreCallback(object : Callback<Boolean> {
-                override fun success(response: Boolean) {
-                    Log.i(LOG_TAG, "Secure credentials storage has been initialized!")
-                }
-
-                override fun failure(irrecoverableError: Throwable) {
-                    Log.w(LOG_TAG, "Can't initialize secure credentials storage.")
-                    if (irrecoverableError is CatapushCompositeException) {
-                        for (t in irrecoverableError.errors) {
-                            Log.e(LOG_TAG, "Can't initialize secure storage", t)
-                        }
-                    } else {
-                        Log.e(LOG_TAG, "Can't initialize secure storage", irrecoverableError)
-                    }
-                }
-            })
             .init(this,
+                this,
                 CatapushPluginModule.eventDelegate,
                 listOf(CatapushGms),
+                CatapushPluginIntentProvider(MainActivity::class.java),
                 notificationTemplate,
                 null,
                 object : Callback<Boolean> {
