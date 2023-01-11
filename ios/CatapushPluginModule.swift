@@ -13,8 +13,11 @@ import catapush_ios_sdk_pod
 @objc(CatapushPluginModule)
 class CatapushPluginModule: RCTEventEmitter {
     
+    public static var shared: CatapushPluginModule?
+
     override init() {
         super.init()
+        CatapushPluginModule.shared = self
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillTerminate), name: UIApplication.willTerminateNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -52,7 +55,8 @@ class CatapushPluginModule: RCTEventEmitter {
             "Catapush#catapushMessageReceived",
             "Catapush#catapushMessageSent",
             "Catapush#catapushStateChanged",
-            "Catapush#catapushHandleError"
+            "Catapush#catapushHandleError",
+            "Catapush#catapushNotificationTapped"
         ]
     }
     
@@ -587,7 +591,7 @@ extension CatapushPluginModule: UNUserNotificationCenterDelegate {
             let predicate = NSPredicate(format: "messageId == %@", id)
             let matches = Catapush.messages(with: predicate)
             if matches.count > 0, let messageIP = matches.first as? MessageIP {
-                sendEvent(withName: "Catapush#catapushNotificationTapped", body: ["message" : CatapushPluginModule.formatMessageID(message: messageIP!)])
+                sendEvent(withName: "Catapush#catapushNotificationTapped", body: ["message" : CatapushPluginModule.formatMessageID(message: messageIP)])
                 var newPendingMessages: Dictionary<String, String>?
                 if (pendingMessages == nil) {
                     newPendingMessages = Dictionary()
