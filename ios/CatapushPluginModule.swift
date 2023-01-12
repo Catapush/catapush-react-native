@@ -13,8 +13,11 @@ import catapush_ios_sdk_pod
 @objc(CatapushPluginModule)
 class CatapushPluginModule: RCTEventEmitter {
     
+    public static var shared: CatapushPluginModule?
+
     override init() {
         super.init()
+        CatapushPluginModule.shared = self
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillTerminate), name: UIApplication.willTerminateNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -52,7 +55,8 @@ class CatapushPluginModule: RCTEventEmitter {
             "Catapush#catapushMessageReceived",
             "Catapush#catapushMessageSent",
             "Catapush#catapushStateChanged",
-            "Catapush#catapushHandleError"
+            "Catapush#catapushHandleError",
+            "Catapush#catapushNotificationTapped"
         ]
     }
     
@@ -106,6 +110,7 @@ class CatapushPluginModule: RCTEventEmitter {
         DispatchQueue.main.async {
             Catapush.registerUserNotification(UIApplication.shared.delegate as! UIResponder)
         }
+        UNUserNotificationCenter.current().delegate = self
         resolve(true)
     }
     
@@ -574,5 +579,29 @@ class CatapushPluginModule: RCTEventEmitter {
         }else{
             return "SENT"
         }
+    }
+}
+
+extension CatapushPluginModule: UNUserNotificationCenterDelegate {
+    public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        let ud = UserDefaults.init(suiteName: (Bundle.main.object(forInfoDictionaryKey: "Catapush") as! (Dictionary<String,String>))["AppGroup"])
+        let pendingMessages : Dictionary<String, String>? = ud!.object(forKey: "pendingMessages") as? Dictionary<String, String>;
+        if (pendingMessages != nil && pendingMessages![response.notification.request.identifier] != nil) {
+            let id: String = String(pendingMessages![response.notification.request.identifier]!.split(separator: "_").first ?? "")
+            let predicate = NSPredicate(format: "messageId == %@", id)
+            let matches = Catapush.messages(with: predicate)
+            if matches.count > 0, let messageIP = matches.first as? MessageIP {
+                sendEvent(withName: "Catapush#catapushNotificationTapped", body: ["message" : CatapushPluginModule.formatMessageID(message: messageIP)])
+                var newPendingMessages: Dictionary<String, String>?
+                if (pendingMessages == nil) {
+                    newPendingMessages = Dictionary()
+                }else{
+                    newPendingMessages = pendingMessages!
+                }
+                newPendingMessages![response.notification.request.identifier] = nil;
+                ud!.setValue(newPendingMessages, forKey: "pendingMessages")
+            }
+        }
+        completionHandler();
     }
 }
