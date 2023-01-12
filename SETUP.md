@@ -231,7 +231,7 @@ public class MyApplication extends MultiDexApplication implements ReactApplicati
                 this,
                 CatapushPluginModule.Companion.getEventDelegate(),
                 Collections.singletonList(CatapushGms.INSTANCE),
-                CatapushPluginIntentProvider(MainActivity.class),
+                new CatapushPluginIntentProvider(MainActivity.class),
                 template,
                 null, // You can pass more templates here if you want to support multiple notification channels
                 new Callback() {
