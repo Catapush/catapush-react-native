@@ -19,6 +19,6 @@ Pod::Spec.new do |s|
 
   s.frameworks = 'SystemConfiguration','MobileCoreServices'
   s.dependency 'React'
-  s.dependency 'catapush-ios-sdk-pod', '2.2.0'
+  s.dependency 'catapush-ios-sdk-pod', '2.2.2'
   s.static_framework = true
 end
