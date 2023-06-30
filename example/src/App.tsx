@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Appbar, DefaultTheme, IconButton, Provider as PaperProvider, Snackbar, TextInput } from 'react-native-paper';
 import Catapush, { CatapushError, CatapushFile, CatapushMessage, CatapushMessageDelegate, CatapushMessageWidget, CatapushState, CatapushStateDelegate } from 'catapush-react-native'
-import { AppState, FlatList, Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import { AppState, FlatList, PermissionsAndroid, Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 const theme = {
@@ -64,8 +64,21 @@ const App = () => {
       .then((_) => {
         if (Platform.OS == 'ios')
           Catapush.setUser('ios', 'ios')
-        else if (Platform.OS == 'android')
+        else if (Platform.OS == 'android') {
           Catapush.setUser('android', 'android')
+
+          PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+            {
+              title: 'Catapush Notifications Permission',
+              message:
+                'Catapush need the notification permission to notify you about new messages when running in the background.',
+              buttonNeutral: 'Ask Me Later',
+              buttonNegative: 'Cancel',
+              buttonPositive: 'OK',
+            },
+          );
+        }
       })
       .then((_) => Catapush.init('YOUR CATAPUSH APP KEY'))
       .then((inited) => {
