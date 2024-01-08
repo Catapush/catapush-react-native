@@ -59,6 +59,6 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
 
-    api "com.catapush.catapush-android-sdk:core:13.0.4"
-    api "com.catapush.catapush-android-sdk:gms:13.0.4"
+    api "com.catapush.catapush-android-sdk:core:13.0.9"
+    api "com.catapush.catapush-android-sdk:gms:13.0.9"
 }
