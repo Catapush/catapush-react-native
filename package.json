@@ -8,24 +8,29 @@
   "author": "Catapush <catapush.com@gmail.com>",
   "license": "Apache-2.0",
   "files": [
+    "src",
+    "lib",
     "android",
     "ios",
-    "lib",
-    "catapush-react-native.podspec",
+    "cpp",
+    "*.podspec",
+    "!ios/build",
     "!android/build",
-    "!android/.idea",
-    "!android/.gradle",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
     "!android/local.properties",
-    "!.DS_Store",
-    "!*.iml",
-    "!project.xcworkspace",
-    "!xcshareddata",
-    "!xcuserdata"
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
   ],
   "scripts": {
+    "example": "yarn workspace example",
     "compile": "rm -rf lib && tsc -p .",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prepare": "yarn compile",
+    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
     "test": "jest"
   },
   "devDependencies": {
@@ -55,12 +60,19 @@
     "react": "*",
     "react-native": "*"
   },
+  "workspaces": [
+    "example"
+  ],
   "engines": {
     "node": ">=18"
   },
   "packageManager": "yarn@3.6.4",
   "jest": {
     "preset": "react-native",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/example/node_modules",
+      "<rootDir>/lib/"
+    ],
     "moduleFileExtensions": [
       "ts",
       "tsx",
