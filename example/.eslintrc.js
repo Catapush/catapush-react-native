@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['@react-native-community', 'plugin:prettier/recommended'],
+  extends: ['@react-native', 'plugin:prettier/recommended'],
   plugins: ['simple-import-sort'],
   root: true,
   rules: {
