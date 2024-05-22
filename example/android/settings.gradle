@@ -7,6 +7,5 @@ project(':react-native-vector-icons').projectDir = new File(rootProject.projectD
 include ':catapush-react-native'
 project(':catapush-react-native').projectDir = new File(rootProject.projectDir, '../../android')
 
-
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
