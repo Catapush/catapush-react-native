@@ -4901,7 +4901,7 @@ __metadata:
     react-native-eject: ^0.2.0
     react-native-gesture-handler: ^2.12.0
     react-native-gradle-plugin: ^0.71.19
-    react-native-image-picker: ^5.6.0
+    react-native-image-picker: ^7.1.2
     react-native-paper: ^5.9.0
     react-native-reanimated: ^3.3.0
     react-native-safe-area: ^0.5.1
@@ -8235,13 +8235,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-image-picker@npm:^5.6.0":
-  version: 5.7.0
-  resolution: "react-native-image-picker@npm:5.7.0"
+"react-native-image-picker@npm:^7.1.2":
+  version: 7.1.2
+  resolution: "react-native-image-picker@npm:7.1.2"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 170cbda1c405b49ca8434bbe364a54406be3dbcc953ca6e4b40565556004cbddeca34a1091a1dbad60cd1dc06c8777fdd25ab2489447199902c39ec09aa169e1
+  checksum: af52328b7cb06c28549442f0d923cfa92dde8d5a968a642336df4c882f81adbf0e5e606a14de27f96883a76fa1e03230061c4080011c9107942edebc8e09c478
   languageName: node
   linkType: hard
 
