@@ -149,7 +149,7 @@ const App = () => {
         <View style={styles.messageInputContainer}>
           <IconButton
             icon='camera'
-            color='white'
+            iconColor='white'
             size={34}
             onPress={async () => {
               const result = await launchImageLibrary({
@@ -175,7 +175,7 @@ const App = () => {
             onChangeText={text => setOutboundMessage(text)} />
           <IconButton
             icon='send'
-            color='white'
+            iconColor='white'
             size={34}
             onPress={() => {
               Catapush.sendMessage(outboundMessage, null, null, null)

@@ -5,6 +5,7 @@
       "catapush-react-native": [
         "../src"
       ]
-    }
+    },
+    "jsx": "react-jsx"
   }
 }
