@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
 
   s.authors      = package['author']
   s.homepage     = package['homepage']
-  s.platform     = :ios, "11.0"
+  s.platform     = :ios, "12.0"
 
   #s.source       = { :git => '/' }
   s.source       = { :git => "https://github.com/Catapush/catapush-react-native-sdk", :tag => "v#{s.version}" }
