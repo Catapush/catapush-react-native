@@ -3,7 +3,6 @@ package com.catapush.reactnative.sdk.example
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
@@ -16,48 +15,42 @@ import com.catapush.library.interfaces.ICatapushInitializer
 import com.catapush.library.notifications.NotificationTemplate
 import com.catapush.reactnative.sdk.CatapushPluginIntentProvider
 import com.catapush.reactnative.sdk.CatapushPluginModule
-import com.catapush.reactnative.sdk.example.newarchitecture.MainApplicationReactNativeHost
-import com.facebook.react.*
-import com.facebook.react.config.ReactFeatureFlags
-import com.facebook.soloader.SoLoader
-import java.lang.reflect.InvocationTargetException
+import com.facebook.react.PackageList
+import com.facebook.react.ReactApplication
+import com.facebook.react.ReactHost
+import com.facebook.react.ReactNativeHost
+import com.facebook.react.ReactPackage
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
+import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
+import com.facebook.react.defaults.DefaultReactNativeHost
 
 class MainApplication : Application(), ReactApplication, ICatapushInitializer {
 
-    private val mReactNativeHost = object : ReactNativeHost(this) {
-        override fun getUseDeveloperSupport(): Boolean {
-            return BuildConfig.DEBUG
+    override val reactNativeHost: ReactNativeHost =
+        object : DefaultReactNativeHost(this) {
+            override fun getPackages(): List<ReactPackage> =
+                PackageList(this).packages.apply {
+                    // Packages that cannot be autolinked yet can be added manually here, for example:
+                    // add(MyReactNativePackage())
+                }
+
+            override fun getJSMainModuleName(): String = "index"
+
+            override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
+
+            override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+            override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
         }
 
-        override fun getPackages(): List<ReactPackage> {
-            val packages = PackageList(this).packages
-            // Packages that cannot be autolinked yet can be added manually here, for example:
-            // packages.add(MyReactNativePackage());
-            return packages
-        }
-
-        override fun getJSMainModuleName(): String {
-            return "index"
-        }
-    }
-
-    private val mNewArchitectureNativeHost = MainApplicationReactNativeHost(this)
-
-
-    override fun getReactNativeHost(): ReactNativeHost {
-        return if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-            mNewArchitectureNativeHost
-        } else {
-            mReactNativeHost
-        }
-    }
+    override val reactHost: ReactHost
+        get() = getDefaultReactHost(applicationContext, reactNativeHost)
 
     override fun onCreate() {
         super.onCreate()
-        // If you opted-in for the New Architecture, we enable the TurboModule system
-        ReactFeatureFlags.useTurboModules = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
-        SoLoader.init(this, false)
-        initializeFlipper(this, reactNativeHost.reactInstanceManager)
+        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+            // If you opted-in for the New Architecture, we load the native entry point for this app.
+            load()
+        }
 
         initCatapush()
     }
@@ -72,7 +65,7 @@ class MainApplication : Application(), ReactApplication, ICatapushInitializer {
             .soundEnabled(true)
             .soundResourceUri(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .circleColor(notificationColor)
-            .iconId(R.drawable.ic_stat_notify_default)
+            .iconId(R.drawable.ic_stat_notify)
             .useAttachmentPreviewAsLargeIcon(true)
             .modalIconId(R.mipmap.ic_launcher)
             .ledEnabled(true)
@@ -127,24 +120,5 @@ class MainApplication : Application(), ReactApplication, ICatapushInitializer {
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "EXAMPLE_CHANNEL"
         const val LOG_TAG = "App"
-
-        private fun initializeFlipper(context: Context, reactInstanceManager: ReactInstanceManager) {
-            if (BuildConfig.DEBUG) {
-                try {
-                    val aClass = Class.forName("com.catapush.reactnative.sdk.example.ReactNativeFlipper")
-                    aClass
-                        .getMethod("initializeFlipper", Context::class.java, ReactInstanceManager::class.java)
-                        .invoke(null, context, reactInstanceManager)
-                } catch (e: ClassNotFoundException) {
-                    e.printStackTrace()
-                } catch (e: NoSuchMethodException) {
-                    e.printStackTrace()
-                } catch (e: IllegalAccessException) {
-                    e.printStackTrace()
-                } catch (e: InvocationTargetException) {
-                    e.printStackTrace()
-                }
-            }
-        }
     }
 }

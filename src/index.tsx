@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import {NativeModules} from 'react-native';
 
 import EventManager, {
   CATAPUSH_HANDLE_ERROR,
@@ -89,12 +89,15 @@ export default class Catapush {
         objectToCatapushMessage(payload.message),
       );
     });
-    eventManager.setEventHandler(CATAPUSH_NOTIFICATION_TAPPED, (payload: any) => {
-      console.log('CATAPUSH NOTIFICATION TAPPED ' + payload.message.id);
-      this.messageDelegate?.catapushNotificationTapped(
-        objectToCatapushMessage(payload.message),
-      );
-    });
+    eventManager.setEventHandler(
+      CATAPUSH_NOTIFICATION_TAPPED,
+      (payload: any) => {
+        console.log('CATAPUSH NOTIFICATION TAPPED ' + payload.message.id);
+        this.messageDelegate?.catapushNotificationTapped(
+          objectToCatapushMessage(payload.message),
+        );
+      },
+    );
     eventManager.setEventHandler(CATAPUSH_STATE_CHANGED, (payload: any) => {
       console.log('CATAPUSH STATE ' + payload.status);
       this.stateDelegate?.catapushStateChanged(payload.status);
@@ -170,13 +173,12 @@ export default class Catapush {
     eventManager.clearHandlers();
   }
 }
+export type {CatapushMessageDelegate, CatapushStateDelegate} from './models';
 export {
   CatapushError,
   CatapushFile,
   CatapushMessage,
-  CatapushMessageDelegate,
   CatapushMessageState,
   CatapushState,
-  CatapushStateDelegate,
 } from './models';
-export { CatapushMessageWidget } from './widgets';
+export {CatapushMessageWidget} from './widgets';

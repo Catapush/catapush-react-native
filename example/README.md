@@ -44,3 +44,11 @@ yarn android
 8. Check the difference in `android/app/build.gradle` and combine all
 9. Check the difference in `MainApplication.kt` and combine all
 10. Open new `example` project in Xcode, right click on the `Libraries` folder, select "Add Files to". Navigate to the library root, `ios` folder, select `RNModuleTemplateModule.xcodeproj`. Deselect "Copy items if needed", click add. Go to the `Build Phases` of the `example` target, "Link Binary with Libraries", click +, search for the `libRNModuleTemplateModule.a`, click add.
+
+## Troubleshooting
+### iOS
+If you encounter an issue like this: 
+`/ios/Pods/Headers/Public/ReactCommon/ReactCommon.modulemap:1:8: error: redefinition of module 'ReactCommon' module ReactCommon { ^ /ios/Pods/Headers/Public/ReactCommon/React-RuntimeApple.modulemap:1:8: note: previously defined here module ReactCommon { ^ 1 error generated.`
+
+This is a known issue, to fix you need to follow these steps:
+https://github.com/facebook/react-native/issues/44502
