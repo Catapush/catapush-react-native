@@ -5,6 +5,7 @@
   "homepage": "https://www.catapush.com/",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "react-native": "src/index.tsx",
   "author": "Catapush <catapush.com@gmail.com>",
   "license": "Apache-2.0",
   "files": [
@@ -33,14 +34,21 @@
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
     "test": "jest"
   },
+  "dependencies": {
+    "date-fns": "^2.30.0",
+    "prop-types": "^15.8.1"
+  },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@babel/preset-env": "^7.20.0",
-    "@babel/runtime": "^7.20.0",
-    "@react-native/babel-preset": "0.75.4",
-    "@react-native/eslint-config": "0.75.4",
-    "@react-native/metro-config": "0.75.4",
-    "@react-native/typescript-config": "0.75.4",
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/runtime": "^7.25.0",
+    "@react-native-community/cli": "15.0.1",
+    "@react-native-community/cli-platform-android": "15.0.1",
+    "@react-native-community/cli-platform-ios": "15.0.1",
+    "@react-native/babel-preset": "0.76.6",
+    "@react-native/eslint-config": "0.76.6",
+    "@react-native/metro-config": "0.76.6",
+    "@react-native/typescript-config": "0.76.6",
     "@types/jest": "^29.5.2",
     "@types/react": "^18.2.6",
     "@types/react-native": "^0.72.2",
@@ -54,7 +62,7 @@
     "react": "18.3.1",
     "react-native": "0.75.4",
     "react-test-renderer": "^18.3.1",
-    "typescript": "^5.0.4"
+    "typescript": "5.7.3"
   },
   "peerDependencies": {
     "react": "*",
@@ -66,7 +74,7 @@
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "yarn@3.6.4",
+  "packageManager": "yarn@4.6.0",
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
@@ -81,14 +89,6 @@
       "json",
       "node"
     ]
-  },
-  "dependencies": {
-    "date-fns": "^2.30.0",
-    "prop-types": "^15.8.1"
-  },
-  "directories": {
-    "example": "example",
-    "lib": "lib"
   },
   "repository": {
     "type": "git",

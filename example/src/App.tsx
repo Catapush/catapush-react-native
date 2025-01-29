@@ -61,7 +61,7 @@ const App = () => {
 
   async function startCatapush() {
     await Catapush.enableLog(true)
-      .then((_) => {
+      .then((_: any) => {
         if (Platform.OS == 'ios')
           Catapush.setUser('ios', 'ios')
         else if (Platform.OS == 'android') {
@@ -80,25 +80,25 @@ const App = () => {
           );
         }
       })
-      .then((_) => Catapush.init('YOUR CATAPUSH APP KEY'))
-      .then((inited) => {
+      .then((_: any) => Catapush.init('YOUR CATAPUSH APP KEY'))
+      .then((inited: boolean) => {
         setCatapushInited(inited)
         return Catapush.start()
       })
-      .then((started) => {
+      .then((started: boolean) => {
         setCatapushStarted(started)
       })
-      .catch((error) =>
+      .catch((error: any) =>
         setLastError(error)
       )
   }
 
   async function getMessages() {
     await Catapush.allMessages()
-      .then((messages) => {
+      .then((messages: CatapushMessage[]) => {
         setMessages(messages)
       })
-      .catch((error) =>
+      .catch((error: any) =>
         setLastError(error)
       )
   }
@@ -134,8 +134,8 @@ const App = () => {
         <Appbar.Header>
           <Appbar.Content title='Catapush React Native Example' color='white' />
           <Appbar.Action icon="logout" onPress={() => {
-            Catapush.logout().then((success) => console.log('Logout successful'),
-              (reason) => console.log('Logout failed, reason: ' + reason))
+            Catapush.logout().then((success: boolean) => console.log('Logout successful'),
+              (reason: any) => console.log('Logout failed, reason: ' + reason))
           }} color='white' />
         </Appbar.Header>
         <FlatList
@@ -163,7 +163,7 @@ const App = () => {
                 const uri = asset.uri
                 if (type != null && uri != null) {
                   Catapush.sendMessage(outboundMessage, null, null, new CatapushFile(type, uri))
-                    .then((_) => setOutboundMessage(''))
+                    .then((_: any) => setOutboundMessage(''))
                 }
               }
             }} />
@@ -172,14 +172,14 @@ const App = () => {
             mode='outlined'
             placeholder='Type a message…'
             value={outboundMessage}
-            onChangeText={text => setOutboundMessage(text)} />
+            onChangeText={(text: string) => setOutboundMessage(text)} />
           <IconButton
             icon='send'
             iconColor='white'
             size={34}
             onPress={() => {
               Catapush.sendMessage(outboundMessage, null, null, null)
-                .then((_) => setOutboundMessage(''))
+                .then((_: any) => setOutboundMessage(''))
             }} />
         </View>
         <Snackbar
