@@ -19,5 +19,6 @@ export default class Catapush {
     static disableNotifications(): Promise<void>;
     static clearHandlers(): void;
 }
-export { CatapushError, CatapushFile, CatapushMessage, CatapushMessageDelegate, CatapushMessageState, CatapushState, CatapushStateDelegate, } from './models';
+export type { CatapushMessageDelegate, CatapushStateDelegate } from './models';
+export { CatapushError, CatapushFile, CatapushMessage, CatapushMessageState, CatapushState, } from './models';
 export { CatapushMessageWidget } from './widgets';
