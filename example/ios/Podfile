@@ -25,11 +25,6 @@ target 'example' do
     :hermes_enabled => false
   )
 
-  target 'exampleTests' do
-    inherit! :complete
-    # Pods for testing
-  end
-
   pre_install do |installer|
     installer.pod_targets.each do |target|
       # Make some targets static as they throw errors if not
