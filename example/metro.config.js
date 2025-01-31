@@ -1,4 +1,5 @@
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const path = require('path');
 
 /**
  * Metro configuration
@@ -6,6 +7,12 @@ const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
  *
  * @type {import('@react-native/metro-config').MetroConfig}
  */
-const config = {};
+const config = {
+  resolver: {
+    extraNodeModules: {
+      'catapush-react-native': path.resolve(__dirname, '../sdk/lib')
+    }
+  }
+};
 
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);

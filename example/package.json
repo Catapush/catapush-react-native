@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@react-native/gradle-plugin": "^0.77.0",
-    "catapush-react-native": "*",
+    "catapush-react-native": "file:../sdk",
     "react": "18.3.1",
     "react-native": "0.77.0",
     "react-native-eject": "^1.0.2",
