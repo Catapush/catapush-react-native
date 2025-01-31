@@ -94,7 +94,7 @@ class MainApplication : Application(), ReactApplication, ICatapushInitializer {
                 if (notificationTemplate.isSoundEnabled) {
                     val audioAttributes = AudioAttributes.Builder()
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                         .build()
                     channel.setSound(notificationTemplate.soundResourceUri, audioAttributes)
                 }
