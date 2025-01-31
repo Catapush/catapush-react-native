@@ -1,6 +1,6 @@
 {
   "name": "catapush-react-native",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Catapush React Native plugin",
   "homepage": "https://www.catapush.com/",
   "main": "lib/index.js",
