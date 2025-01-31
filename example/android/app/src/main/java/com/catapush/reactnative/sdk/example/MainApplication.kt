@@ -20,11 +20,12 @@ import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
-import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
+import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
+import com.oblador.vectoricons.VectorIconsPackage
 
 class MainApplication : Application(), ReactApplication, ICatapushInitializer {
 
@@ -32,8 +33,7 @@ class MainApplication : Application(), ReactApplication, ICatapushInitializer {
         object : DefaultReactNativeHost(this) {
             override fun getPackages(): List<ReactPackage> =
                 PackageList(this).packages.apply {
-                    // Packages that cannot be autolinked yet can be added manually here, for example:
-                    // add(MyReactNativePackage())
+                    add(VectorIconsPackage())
                 }
 
             override fun getJSMainModuleName(): String = "index"
@@ -94,7 +94,7 @@ class MainApplication : Application(), ReactApplication, ICatapushInitializer {
                 if (notificationTemplate.isSoundEnabled) {
                     val audioAttributes = AudioAttributes.Builder()
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                         .build()
                     channel.setSound(notificationTemplate.soundResourceUri, audioAttributes)
                 }

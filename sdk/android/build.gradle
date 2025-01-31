@@ -9,8 +9,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.0.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${safeExtGet('kotlinVersion', '1.7.21')}"
+        classpath 'com.android.tools.build:gradle'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin'
     }
 }
 
@@ -27,7 +27,7 @@ android {
 
     defaultConfig {
         minSdkVersion safeExtGet('minSdkVersion', 24)
-        targetSdkVersion safeExtGet('targetSdkVersion', 34)
+        targetSdkVersion safeExtGet('targetSdkVersion', 35)
     }
 }
 
@@ -59,6 +59,6 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
 
-    api "com.catapush.catapush-android-sdk:core:14.0.0"
-    api "com.catapush.catapush-android-sdk:gms:14.0.0"
+    api "com.catapush.catapush-android-sdk:core:15.0.0"
+    api "com.catapush.catapush-android-sdk:gms:15.0.0"
 }
