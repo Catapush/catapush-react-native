@@ -1,0 +1,25 @@
+name: Send test email via AWS SES to developers on action update
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/on_action_update_send_test_email.yml'
+
+jobs:
+  send_email:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: email-smtp.eu-west-1.amazonaws.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          to: ${{ vars.TEST_EMAIL_RECIPIENTS }}
+          from: ${{ vars.NEW_REACT_NATIVE_RELEASE_EMAIL_FROM }}
+          reply_to: ${{ vars.NEW_REACT_NATIVE_RELEASE_EMAIL_REPLY_TO }}
+          subject: ${{ vars.NEW_REACT_NATIVE_RELEASE_EMAIL_SUBJECT }}
+          html_body: ${{ vars.NEW_REACT_NATIVE_RELEASE_EMAIL_BODY }}
+          priority: low

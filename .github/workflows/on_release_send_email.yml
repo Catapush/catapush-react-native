@@ -1,0 +1,25 @@
+name: Send email via AWS SES to customers on React Native changelog update
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'CHANGELOG.md'
+
+jobs:
+  send_email:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: email-smtp.eu-west-1.amazonaws.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          to: ${{ vars.NEW_REACT_NATIVE_RELEASE_EMAIL_TO }}
+          from: ${{ vars.NEW_REACT_NATIVE_RELEASE_EMAIL_FROM }}
+          reply_to: ${{ vars.NEW_REACT_NATIVE_RELEASE_EMAIL_REPLY_TO }}
+          subject: ${{ vars.NEW_REACT_NATIVE_RELEASE_EMAIL_SUBJECT }}
+          html_body: ${{ vars.NEW_REACT_NATIVE_RELEASE_EMAIL_BODY }}
+          priority: low
