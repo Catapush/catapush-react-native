@@ -130,7 +130,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     override fun onHostResume() {
-        activity = currentActivity
+        activity = reactApplicationContext.currentActivity
     }
 
     override fun onHostPause() {
@@ -196,7 +196,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     fun init(appId: String, promise: Promise) {
         messageDispatchDelegate = this
         statusDispatchDelegate = this
-        companionContext = WeakReference(currentActivity?.applicationContext)
+        companionContext = WeakReference(reactApplicationContext.applicationContext)
 
         inited = (Catapush.getInstance() as Catapush).waitInitialization()
         if (inited) {
