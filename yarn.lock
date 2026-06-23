@@ -3991,15 +3991,15 @@ __metadata:
   linkType: soft
 
 "catapush-react-native@file:../sdk::locator=example%40workspace%3Aexample":
-  version: 1.7.0
-  resolution: "catapush-react-native@file:../sdk#../sdk::hash=a94588&locator=example%40workspace%3Aexample"
+  version: 1.8.0
+  resolution: "catapush-react-native@file:../sdk#../sdk::hash=b15d77&locator=example%40workspace%3Aexample"
   dependencies:
     date-fns: "npm:^2.30.0"
     prop-types: "npm:^15.8.1"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10/682541cba6f12d7d5714661ffcc62954d1fef65efc9e05d972e784a781c7fe38dcf1c150429199e82002b0e439f6c93edbd44fb39475f23d76b9adc87027333a
+  checksum: 10/daf0a8bb6b73cd62d4ae5bc27991cdd7ef816c7bba989fd41c7a5d1f007331d7ae6b1f6f757577fed616b388293ea4367c399aef03aad31e4256beea8daf7d8b
   languageName: node
   linkType: hard
 
