@@ -14,7 +14,7 @@ In order to start sending push notifications and interacting with your mobile ap
 
 1. Create your account by [signing up](https://www.catapush.com/d/register) for Catapush services and register your app on our Private Panel
 2. Generate a [iOS Push Certificate](https://www.catapush.com/docs-ios) and a [FCM Push Notification Key](https://github.com/Catapush/catapush-docs/blob/master/AndroidSDK/DOCUMENTATION_PLATFORM_GMS_FCM.md) or a [HMS Push Notification Key](https://github.com/Catapush/catapush-docs/blob/master/AndroidSDK/DOCUMENTATION_PLATFORM_HMS_PUSHKIT.md)
-4. [Integrate React Native SDK](#Integrate_react_native_sdk)
+3. [Integrate React Native SDK](#integrate-react-native-sdk)
 
 ## Integrate React Native SDK
 
