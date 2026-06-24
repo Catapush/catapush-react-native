@@ -72,6 +72,14 @@
     "node": ">=18"
   },
   "packageManager": "yarn@4.6.0",
+  "codegenConfig": {
+    "name": "RNCatapushSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.catapush.reactnative.sdk"
+    }
+  },
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
