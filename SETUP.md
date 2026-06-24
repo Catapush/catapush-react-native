@@ -285,21 +285,18 @@ If you are defining a custom application class for your app for the first time, 
 
 Your `MainActivity` implementation must forward the received `Intent`s to make the `catapushNotificationTapped` callback work:
 
-```java
-public class MainActivity extends ReactActivity {
+```kotlin
+class MainActivity : ReactActivity() {
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        CatapushPluginIntentProvider.Companion.handleIntent(getIntent());
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        CatapushPluginIntentProvider.handleIntent(intent)
     }
 
-    @Override
-    protected void onNewIntent(@NonNull Intent intent) {
-        super.onNewIntent(intent);
-        CatapushPluginIntentProvider.Companion.handleIntent(intent);
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        CatapushPluginIntentProvider.handleIntent(intent)
     }
-
 }
 ```
 
