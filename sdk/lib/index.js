@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import NativeCatapushModule from './NativeCatapushModule';
 import EventManager, { CATAPUSH_HANDLE_ERROR, CATAPUSH_MESSAGE_RECEIVED, CATAPUSH_MESSAGE_SENT, CATAPUSH_NOTIFICATION_TAPPED, CATAPUSH_STATE_CHANGED, } from './events';
 import { CatapushError, CatapushMessage, } from './models';
 function objectToCatapushMessage(message) {
@@ -21,7 +21,7 @@ function catapushMessageToObject(message) {
         sentTime: message.sentTime,
     };
 }
-const catapushPluginModule = NativeModules.CatapushPluginModule;
+const catapushPluginModule = NativeCatapushModule;
 const eventManager = new EventManager();
 export default class Catapush {
     static messageDelegate;

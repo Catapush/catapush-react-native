@@ -138,7 +138,7 @@ export default class Catapush {
   ): Promise<CatapushFile> {
     return catapushPluginModule.getAttachmentUrlForMessage(
       catapushMessageToObject(message),
-    );
+    ) as unknown as Promise<CatapushFile>;
   }
   static resumeNotifications(): Promise<void> {
     return catapushPluginModule.resumeNotifications();
