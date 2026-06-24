@@ -65,10 +65,22 @@ class CatapushPluginModule: RCTEventEmitter {
                             rejecter reject: @escaping RCTPromiseRejectBlock ) -> Void {
         resolve(nil)
     }
-    
+
     @objc
     func resumeNotifications(_ resolve: @escaping RCTPromiseResolveBlock,
                              rejecter reject: @escaping RCTPromiseRejectBlock ) -> Void {
+        resolve(nil)
+    }
+
+    @objc
+    func enableNotifications(_ resolve: @escaping RCTPromiseResolveBlock,
+                             rejecter reject: @escaping RCTPromiseRejectBlock ) -> Void {
+        resolve(nil)
+    }
+
+    @objc
+    func disableNotifications(_ resolve: @escaping RCTPromiseResolveBlock,
+                              rejecter reject: @escaping RCTPromiseRejectBlock ) -> Void {
         resolve(nil)
     }
     

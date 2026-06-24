@@ -15,10 +15,11 @@ Pod::Spec.new do |s|
 
   #s.source       = { :git => '/' }
   s.source       = { :git => "https://github.com/Catapush/catapush-react-native-sdk", :tag => "v#{s.version}" }
-  s.source_files  = "ios/**/*.{h,m,swift}"
+  s.source_files  = "ios/**/*.{h,m,mm,swift}"
 
   s.frameworks = 'SystemConfiguration','MobileCoreServices'
-  s.dependency 'React'
   s.dependency 'catapush-ios-sdk-pod', '2.2.5'
   s.static_framework = true
+
+  install_modules_dependencies(s)
 end
