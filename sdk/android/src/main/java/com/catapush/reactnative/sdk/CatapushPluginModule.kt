@@ -156,7 +156,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     @ReactMethod
-    fun addListener(eventName: String) {
+    override fun addListener(eventName: String) {
     }
 
     @ReactMethod
@@ -196,7 +196,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
 
     @SuppressLint("RestrictedApi")
     @ReactMethod
-    fun init(appId: String, promise: Promise) {
+    override fun init(appId: String, promise: Promise) {
         messageDispatchDelegate = this
         statusDispatchDelegate = this
         companionContext = WeakReference(reactApplicationContext.applicationContext)
@@ -211,7 +211,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     @ReactMethod
-    fun setUser(identifier: String, password: String, promise: Promise) {
+    override fun setUser(identifier: String, password: String, promise: Promise) {
         if (identifier.isNotBlank() && password.isNotBlank()) {
             Catapush.getInstance().setUser(identifier, password)
             promise.resolve(true)
@@ -221,7 +221,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     @ReactMethod
-    fun start(promise: Promise) {
+    override fun start(promise: Promise) {
         Catapush.getInstance().start(object : RecoverableErrorCallback<Boolean> {
             override fun success(response: Boolean) {
                 promise.resolve(true)
@@ -236,7 +236,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     @ReactMethod
-    fun allMessages(promise: Promise) {
+    override fun allMessages(promise: Promise) {
         Catapush.getInstance().getMessagesAsList(object : Callback<List<CatapushMessage>> {
             override fun success(response: List<CatapushMessage>) {
                 promise.resolve(response.toArray())
@@ -248,7 +248,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     @ReactMethod
-    fun enableLog(enabled: Boolean, promise: Promise) {
+    override fun enableLog(enabled: Boolean, promise: Promise) {
         if (enabled)
             Catapush.getInstance().enableLog()
         else
@@ -257,7 +257,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     @ReactMethod
-    fun logout(promise: Promise) {
+    override fun logout(promise: Promise) {
         Catapush.getInstance().logout(object : Callback<Boolean> {
             override fun success(response: Boolean) {
                 promise.resolve(true)
@@ -269,7 +269,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     @ReactMethod
-    fun sendMessage(message: ReadableMap, promise: Promise) {
+    override fun sendMessage(message: ReadableMap, promise: Promise) {
         val body = message.getString("body")
         val channel = message.getString("channel")
         val replyTo = message.getString("replyTo")
@@ -309,7 +309,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     @ReactMethod
-    fun getAttachmentUrlForMessage(message: ReadableMap, promise: Promise) {
+    override fun getAttachmentUrlForMessage(message: ReadableMap, promise: Promise) {
         val id = message.getString("id")
         if (id != null) {
             Catapush.getInstance().getMessageById(id, object : Callback<CatapushMessage> {
@@ -344,31 +344,31 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     @ReactMethod
-    fun resumeNotifications(promise: Promise) {
+    override fun resumeNotifications(promise: Promise) {
         Catapush.getInstance().resumeNotifications()
         promise.resolve(null)
     }
 
     @ReactMethod
-    fun pauseNotifications(promise: Promise) {
+    override fun pauseNotifications(promise: Promise) {
         Catapush.getInstance().pauseNotifications()
         promise.resolve(null)
     }
 
     @ReactMethod
-    fun enableNotifications(promise: Promise) {
+    override fun enableNotifications(promise: Promise) {
         Catapush.getInstance().enableNotifications()
         promise.resolve(null)
     }
 
     @ReactMethod
-    fun disableNotifications(promise: Promise) {
+    override fun disableNotifications(promise: Promise) {
         Catapush.getInstance().disableNotifications()
         promise.resolve(null)
     }
 
     @ReactMethod
-    fun sendMessageReadNotificationWithId(id: String, promise: Promise) {
+    override fun sendMessageReadNotificationWithId(id: String, promise: Promise) {
         Catapush.getInstance().notifyMessageOpened(id)
         promise.resolve(true)
     }
