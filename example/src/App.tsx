@@ -170,7 +170,7 @@ const App = () => {
 
   return (
     <PaperProvider theme={theme}>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
         <Appbar.Header style={{ backgroundColor: theme.colors.primary }}>
           <Appbar.Content title='Catapush React Native Example' color='white' />
           <Appbar.Action icon="logout" onPress={() => {
