@@ -16,13 +16,15 @@ import com.catapush.library.messages.CatapushMessage
 import com.catapush.library.push.models.PushPlatformType
 import com.catapush.library.push.models.PushPluginType
 import com.facebook.react.bridge.*
+import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.google.android.gms.common.GoogleApiAvailability
 import java.lang.ref.WeakReference
 import java.lang.reflect.Modifier
 
 
-class CatapushPluginModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext),
+@ReactModule(name = CatapushPluginModule.NAME, hasConstants = false)
+class CatapushPluginModule(private val reactContext: ReactApplicationContext) : NativeCatapushModuleSpec(reactContext),
     LifecycleEventListener, IMessagesDispatchDelegate, IStatusDispatchDelegate {
 
     private var activity: Activity? = null
@@ -43,6 +45,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     companion object {
+        const val NAME = "CatapushPluginModule"
         private lateinit var companionContext: WeakReference<Context>
         private var messageDispatchDelegate: IMessagesDispatchDelegate? = null
         private var statusDispatchDelegate: IStatusDispatchDelegate? = null
@@ -123,7 +126,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
         }
     }
 
-    override fun getName() = "CatapushPluginModule"
+    override fun getName() = NAME
 
     override fun getConstants(): MutableMap<String, Any> {
         return hashMapOf()
@@ -157,7 +160,7 @@ class CatapushPluginModule(private val reactContext: ReactApplicationContext) : 
     }
 
     @ReactMethod
-    fun removeListeners(count: Int) {
+    override fun removeListeners(count: Double) {
     }
 
     override fun dispatchMessageReceived(message: CatapushMessage) {
