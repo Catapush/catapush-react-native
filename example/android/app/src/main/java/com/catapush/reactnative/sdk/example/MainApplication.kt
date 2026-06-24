@@ -52,7 +52,6 @@ class MainApplication : Application(), ReactApplication, ICatapushInitializer {
             .circleColor(notificationColor)
             .iconId(R.drawable.ic_stat_notify)
             .useAttachmentPreviewAsLargeIcon(true)
-            .modalIconId(R.mipmap.ic_launcher)
             .ledEnabled(true)
             .ledColor(notificationColor)
             .ledOnMS(2000)
