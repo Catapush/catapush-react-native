@@ -2935,18 +2935,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native/virtualized-lists@npm:^0.72.4":
-  version: 0.72.8
-  resolution: "@react-native/virtualized-lists@npm:0.72.8"
-  dependencies:
-    invariant: "npm:^2.2.4"
-    nullthrows: "npm:^1.1.1"
-  peerDependencies:
-    react-native: "*"
-  checksum: 10/9de9a35a086d2438af7d01a301c6c7ad2790fd6365194255b7bc5b3bad6e07ea2d377cd3f8252440c633f229cc9b87b2a4dec7c26f4faa27727767494491772b
-  languageName: node
-  linkType: hard
-
 "@sideway/address@npm:^4.1.5":
   version: 4.1.5
   resolution: "@sideway/address@npm:4.1.5"
@@ -3089,29 +3077,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prop-types@npm:*":
-  version: 15.7.14
-  resolution: "@types/prop-types@npm:15.7.14"
-  checksum: 10/d0c5407b9ccc3dd5fae0ccf9b1007e7622ba5e6f1c18399b4f24dff33619d469da4b9fa918a374f19dc0d9fe6a013362aab0b844b606cfc10676efba3f5f736d
+"@types/prop-types@npm:^15.7.15":
+  version: 15.7.15
+  resolution: "@types/prop-types@npm:15.7.15"
+  checksum: 10/31aa2f59b28f24da6fb4f1d70807dae2aedfce090ec63eaf9ea01727a9533ef6eaf017de5bff99fbccad7d1c9e644f52c6c2ba30869465dd22b1a7221c29f356
   languageName: node
   linkType: hard
 
-"@types/react-native@npm:^0.72.2":
-  version: 0.72.8
-  resolution: "@types/react-native@npm:0.72.8"
+"@types/react-native@npm:^0.73.0":
+  version: 0.73.0
+  resolution: "@types/react-native@npm:0.73.0"
   dependencies:
-    "@react-native/virtualized-lists": "npm:^0.72.4"
+    react-native: "npm:*"
+  checksum: 10/a764ca5d876dae3c109da449f736c44271b3b236d0d6e836c078247af1419f6d851600c56bb0c26f3e0d1b4be6eaac56b65c1f74ad0f0d05baf8b65dd1d5c597
+  languageName: node
+  linkType: hard
+
+"@types/react-test-renderer@npm:^19.1.0":
+  version: 19.1.0
+  resolution: "@types/react-test-renderer@npm:19.1.0"
+  dependencies:
     "@types/react": "npm:*"
-  checksum: 10/1029e17b4c2de0a56cc5c67a73459e6ee6e8ffd5f779e6a835889ae9141e4453252832ee3b7c5a7d2fad4f7b79dc7d7f3796ed2cd58855157e1e5ac52e501332
-  languageName: node
-  linkType: hard
-
-"@types/react-test-renderer@npm:^18.0.0":
-  version: 18.3.1
-  resolution: "@types/react-test-renderer@npm:18.3.1"
-  dependencies:
-    "@types/react": "npm:^18"
-  checksum: 10/f8cc23cc8decdb6068cdc8f8c306e189eab8e569443ce97b216e757ee42eb20b18d2280ef41e2955668413f14be92765a3ba86cfcfeeae6b20c965acd9674786
+  checksum: 10/2ef3aec0f2fd638902cda606d70c8531d66f8e8944334427986b99dcac9755ee60b700c5c3a19ac354680f9c45669e98077b84f79cac60e950bdb7d38aebffde
   languageName: node
   linkType: hard
 
@@ -3121,16 +3108,6 @@ __metadata:
   dependencies:
     csstype: "npm:^3.0.2"
   checksum: 10/1080d5b96ee0b4395f8f167ae6952f570088ee03bdce69f8237aab82c32d9bd2b71106f787bac17ba351acc4aba5e3454bafca51f2eb11d1562073b821e63d15
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:^18":
-  version: 18.3.18
-  resolution: "@types/react@npm:18.3.18"
-  dependencies:
-    "@types/prop-types": "npm:*"
-    csstype: "npm:^3.0.2"
-  checksum: 10/7fdd8b853e0d291d4138133f93f8d5c333da918e5804afcea61a923aab4bdfc9bb15eb21a5640959b452972b8715ddf10ffb12b3bd071898b9e37738636463f2
   languageName: node
   linkType: hard
 
@@ -4016,14 +3993,14 @@ __metadata:
 
 "catapush-react-native@file:../sdk::locator=example%40workspace%3Aexample":
   version: 1.8.0
-  resolution: "catapush-react-native@file:../sdk#../sdk::hash=3bbf9b&locator=example%40workspace%3Aexample"
+  resolution: "catapush-react-native@file:../sdk#../sdk::hash=b6038e&locator=example%40workspace%3Aexample"
   dependencies:
     date-fns: "npm:^2.30.0"
     prop-types: "npm:^15.8.1"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10/b5eed1593f8b58e88616c3a432b8c4e3db739b1ba6edb2b32c82b04437bd91380f09a30dd49eecc69ac2fd197d523df4ac9192f2537d9b167643323a909547b5
+  checksum: 10/0782f46df45aa4c6a73c52f8754560fb98baa9fd358459654104d5b08e858c98af2154d909dc1709c0cfe88314c0f252de5c2a5ad06537c2337b9d3f68d3c0fb
   languageName: node
   linkType: hard
 
@@ -4042,9 +4019,10 @@ __metadata:
     "@react-native/metro-config": "npm:0.86.0"
     "@react-native/typescript-config": "npm:0.86.0"
     "@types/jest": "npm:^29.5.13"
+    "@types/prop-types": "npm:^15.7.15"
     "@types/react": "npm:^19.2.0"
-    "@types/react-native": "npm:^0.72.2"
-    "@types/react-test-renderer": "npm:^18.0.0"
+    "@types/react-native": "npm:^0.73.0"
+    "@types/react-test-renderer": "npm:^19.1.0"
     date-fns: "npm:^2.30.0"
     eslint: "npm:^8.19.0"
     eslint-plugin-simple-import-sort: "npm:^10.0.0"
@@ -5232,8 +5210,8 @@ __metadata:
     "@react-native/typescript-config": "npm:0.86.0"
     "@types/jest": "npm:^29.5.13"
     "@types/react": "npm:^19.2.0"
-    "@types/react-native": "npm:^0.72.2"
-    "@types/react-test-renderer": "npm:^18.0.0"
+    "@types/react-native": "npm:^0.73.0"
+    "@types/react-test-renderer": "npm:^19.1.0"
     catapush-react-native: "file:../sdk"
     eslint: "npm:^8.19.0"
     eslint-plugin-simple-import-sort: "npm:^10.0.0"
@@ -8566,7 +8544,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:0.86.0":
+"react-native@npm:*, react-native@npm:0.86.0":
   version: 0.86.0
   resolution: "react-native@npm:0.86.0"
   dependencies:
