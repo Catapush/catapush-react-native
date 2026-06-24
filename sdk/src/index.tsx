@@ -1,4 +1,4 @@
-import {NativeModules} from 'react-native';
+import NativeCatapushModule from './NativeCatapushModule';
 
 import EventManager, {
   CATAPUSH_HANDLE_ERROR,
@@ -51,24 +51,7 @@ function catapushMessageToObject(message: CatapushMessage): object {
   };
 }
 
-interface CatapushPluginModuleInterface {
-  init(appId: string): Promise<boolean>;
-  setUser(identifier: string, password: string): Promise<boolean>;
-  start(): Promise<boolean>;
-  sendMessage(message: object): Promise<boolean>;
-  allMessages(): Promise<object[]>;
-  enableLog(enabled: boolean): Promise<boolean>;
-  logout(): Promise<boolean>;
-  sendMessageReadNotificationWithId(id: string): Promise<boolean>;
-  getAttachmentUrlForMessage(message: object): Promise<CatapushFile>;
-  resumeNotifications(): Promise<void>;
-  pauseNotifications(): Promise<void>;
-  enableNotifications(): Promise<void>;
-  disableNotifications(): Promise<void>;
-}
-
-const catapushPluginModule =
-  NativeModules.CatapushPluginModule as CatapushPluginModuleInterface;
+const catapushPluginModule = NativeCatapushModule;
 
 const eventManager = new EventManager();
 
