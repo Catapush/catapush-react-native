@@ -3993,14 +3993,14 @@ __metadata:
 
 "catapush-react-native@file:../sdk::locator=example%40workspace%3Aexample":
   version: 1.8.0
-  resolution: "catapush-react-native@file:../sdk#../sdk::hash=b6038e&locator=example%40workspace%3Aexample"
+  resolution: "catapush-react-native@file:../sdk#../sdk::hash=6f6e9b&locator=example%40workspace%3Aexample"
   dependencies:
     date-fns: "npm:^2.30.0"
     prop-types: "npm:^15.8.1"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10/0782f46df45aa4c6a73c52f8754560fb98baa9fd358459654104d5b08e858c98af2154d909dc1709c0cfe88314c0f252de5c2a5ad06537c2337b9d3f68d3c0fb
+  checksum: 10/446b1af4d5ca329bcf536528651fc94798db8c8c7e9a23dbee28bb9191d91177171be46c4028ad10adcff133d49a8d989542fee10314ce9cb4a85650a2111a95
   languageName: node
   linkType: hard
 
