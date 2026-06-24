@@ -10,6 +10,19 @@ In order to start sending push notifications and interacting with your mobile ap
 
 ### Add Catapush React SDK dependency
 
+Install the package and its required peer dependencies:
+
+```bash
+yarn add catapush-react-native react-native-worklets
+# or
+npm install catapush-react-native react-native-worklets
+```
+
+Then run `pod install` from your `ios/` folder:
+
+```bash
+cd ios && pod install --no-repo-update
+```
 
 ### [iOS] Add a Notification Service Extension
 In order to process the push notification a Notification Service Extension is required.
