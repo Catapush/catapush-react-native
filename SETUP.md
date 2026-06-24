@@ -182,83 +182,91 @@ You also have to provide your customized notification style template here.
 
 Your `Application.onCreate()` method should contain the following lines:
 
-```java
-public class MyApplication extends MultiDexApplication implements ReactApplication, ICatapushInitializer {
+```kotlin
+class MyApplication : Application(), ReactApplication, ICatapushInitializer {
 
-    private static final String NOTIFICATION_CHANNEL_ID = "your.app.package.CHANNEL_ID";
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        initCatapush();
+    companion object {
+        const val NOTIFICATION_CHANNEL_ID = "your.app.package.CHANNEL_ID"
     }
 
-    public void initCatapush() {
+    override val reactHost: ReactHost by lazy {
+        getDefaultReactHost(
+            context = applicationContext,
+            packageList = PackageList(this).packages,
+        )
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        loadReactNative(this)
+        initCatapush()
+    }
+
+    override fun initCatapush() {
         // This is the notification template that the Catapush SDK uses to build
         // the status bar notification shown to the user.
         // Customize this template to fit your needs.
-        final NotificationTemplate template = new NotificationTemplate.Builder(NOTIFICATION_CHANNEL_ID)
-                .swipeToDismissEnabled(false)
-                .title("Your notification title!")
-                .iconId(R.drawable.ic_stat_notify_default)
-                .vibrationEnabled(true)
-                .vibrationPattern(new long[]{100, 200, 100, 300})
-                .soundEnabled(true)
-                .soundResourceUri(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
-                .circleColor(ContextCompat.getColor(SampleApplication.this, R.color.primary))
-                .ledEnabled(true)
-                .ledColor(Color.BLUE)
-                .ledOnMS(2000)
-                .ledOffMS(1000)
-                .build();
+        val notificationColor = ContextCompat.getColor(this, R.color.primary)
+
+        val template = NotificationTemplate.Builder(NOTIFICATION_CHANNEL_ID)
+            .swipeToDismissEnabled(true)
+            .vibrationEnabled(true)
+            .vibrationPattern(longArrayOf(100, 200, 100, 300))
+            .soundEnabled(true)
+            .soundResourceUri(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+            .circleColor(notificationColor)
+            .iconId(R.drawable.ic_stat_notify)
+            .useAttachmentPreviewAsLargeIcon(true)
+            .ledEnabled(true)
+            .ledColor(notificationColor)
+            .ledOnMS(2000)
+            .ledOffMS(1000)
+            .build()
 
         // This is the Android system notification channel that will be used by the Catapush SDK
         // to notify the incoming messages since Android 8.0. It is important that the channel
         // is created before starting Catapush.
         // Customize this channel to fit your needs.
         // See https://developer.android.com/training/notify-user/channels
-        NotificationManager nm = ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE));
+        val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
         if (nm != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String channelName = "Catapush messages";
-            NotificationChannel channel = nm.getNotificationChannel(notificationTemplate.getNotificationChannelId());
+            val channelName = "Catapush messages"
+            var channel = nm.getNotificationChannel(template.notificationChannelId)
             if (channel == null) {
-                channel = new NotificationChannel(notificationTemplate.getNotificationChannelId(), channelName, NotificationManager.IMPORTANCE_HIGH);
-                channel.enableVibration(notificationTemplate.isVibrationEnabled());
-                channel.setVibrationPattern(notificationTemplate.getVibrationPattern());
-                channel.enableLights(notificationTemplate.isLedEnabled());
-                channel.setLightColor(notificationTemplate.getLedColor());
-                if (notificationTemplate.isSoundEnabled()) {
-                AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
-                    .build();
-                channel.setSound(notificationTemplate.getSoundResourceUri(), audioAttributes);
+                channel = NotificationChannel(template.notificationChannelId, channelName, NotificationManager.IMPORTANCE_HIGH)
+                channel.enableVibration(template.isVibrationEnabled)
+                channel.vibrationPattern = template.vibrationPattern
+                channel.enableLights(template.isLedEnabled)
+                channel.lightColor = template.ledColor
+                if (template.isSoundEnabled) {
+                    val audioAttributes = AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                        .build()
+                    channel.setSound(template.soundResourceUri, audioAttributes)
                 }
             }
-            nm.createNotificationChannel(channel);
+            nm.createNotificationChannel(channel)
         }
 
         Catapush.getInstance()
             .init(
                 this,
                 this,
-                CatapushPluginModule.Companion.getEventDelegate(),
-                Collections.singletonList(CatapushGms.INSTANCE),
-                new CatapushPluginIntentProvider(MainActivity.class),
+                CatapushPluginModule.eventDelegate,
+                listOf(CatapushGms),
+                CatapushPluginIntentProvider(MainActivity::class.java),
                 template,
                 null, // You can pass more templates here if you want to support multiple notification channels
-                new Callback() {
-                    @Override
-                    public void success(Boolean response) {
-                        Log.d("MyApp", "Catapush has been successfully initialized");
+                object : Callback<Boolean> {
+                    override fun success(response: Boolean) {
+                        Log.d("MyApp", "Catapush has been successfully initialized")
                     }
-
-                    @Override
-                    public void failure(@NonNull Throwable t) {
-                        Log.d("MyApp", "Catapush initialization error: " + t.getMessage());
+                    override fun failure(irrecoverableError: Throwable) {
+                        Log.e("MyApp", "Catapush initialization error!", irrecoverableError)
                     }
                 }
-            );
+            )
     }
 }
 ```
@@ -272,8 +280,6 @@ If you are defining a custom application class for your app for the first time, 
     android:label="@string/app_name"
     android:theme="@style/AppTheme">
 ```
-
-Please note that, to be used, the `MultiDexApplication` requires your app to depend on the `androidx.multidex:multidex` dependency.
 
 ### [Android] MainActivity class customization
 
