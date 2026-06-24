@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Appbar, MD3LightTheme as DefaultTheme, IconButton, PaperProvider, Snackbar, TextInput } from 'react-native-paper';
 import Catapush, { CatapushError, CatapushFile, CatapushMessage, CatapushMessageDelegate, CatapushMessageWidget, CatapushState, CatapushStateDelegate } from 'catapush-react-native'
-import { AppState, FlatList, PermissionsAndroid, Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import { AppState, FlatList, PermissionsAndroid, Platform, StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 const theme = {
