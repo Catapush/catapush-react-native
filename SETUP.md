@@ -1,5 +1,15 @@
 # Setup Guide
 
+## Requirements
+
+| Platform | Minimum version |
+|----------|----------------|
+| React Native | 0.86.0 |
+| React | 19.x |
+| Android | API 24 (Android 7.0) |
+| iOS | 12.0 |
+| Node.js | 18+ |
+
 In order to start sending push notifications and interacting with your mobile app users, follow the instructions below:
 
 1. Create your account by [signing up](https://www.catapush.com/d/register) for Catapush services and register your app on our Private Panel
